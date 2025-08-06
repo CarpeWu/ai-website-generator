@@ -5,7 +5,7 @@
       <a-col flex="200px">
         <RouterLink to="/">
           <div class="header-left">
-            <img class="logo" src="@/assets/logo.png" alt="Logo" />
+            <img class="logo" src="@/assets/logo.svg" alt="Logo" />
             <h1 class="site-title">鱼皮应用生成</h1>
           </div>
         </RouterLink>
@@ -36,9 +36,10 @@ import type { MenuProps } from 'ant-design-vue'
 
 const router = useRouter()
 // 当前选中菜单
-const selectedKeys = ref<string[]>(['/'])
+const selectedKeys = ref<string[]>(['/']
+)
 // 监听路由变化，更新当前选中菜单
-router.afterEach((to, from, next) => {
+router.afterEach((to) => {
   selectedKeys.value = [to.path]
 })
 
