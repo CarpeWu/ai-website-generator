@@ -1,12 +1,11 @@
 package com.carpe.aicodemother.service;
 
-import com.carpe.aicodemother.model.dto.UserQueryRequest;
+import com.carpe.aicodemother.model.dto.user.UserQueryRequest;
 import com.carpe.aicodemother.model.vo.LoginUserVO;
 import com.carpe.aicodemother.model.vo.UserVO;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.carpe.aicodemother.model.entity.User;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;

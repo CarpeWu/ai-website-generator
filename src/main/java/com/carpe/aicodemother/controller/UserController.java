@@ -9,7 +9,7 @@ import com.carpe.aicodemother.constant.UserConstant;
 import com.carpe.aicodemother.exception.BusinessException;
 import com.carpe.aicodemother.exception.ErrorCode;
 import com.carpe.aicodemother.exception.ThrowUtils;
-import com.carpe.aicodemother.model.dto.*;
+import com.carpe.aicodemother.model.dto.user.*;
 import com.carpe.aicodemother.model.vo.LoginUserVO;
 import com.carpe.aicodemother.model.vo.UserVO;
 import com.mybatisflex.core.paginate.Page;

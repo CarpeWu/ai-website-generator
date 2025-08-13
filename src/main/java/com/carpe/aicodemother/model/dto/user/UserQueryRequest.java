@@ -1,4 +1,4 @@
-package com.carpe.aicodemother.model.dto;
+package com.carpe.aicodemother.model.dto.user;
 
 import com.carpe.aicodemother.common.PageRequest;
 import lombok.Data;
