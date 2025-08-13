@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ai-code-mother-backend-test
+  profiles:
+    active: local
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ai_code_mother
+    username: root
+    password: ""
+
+# 测试环境日志配置
+logging:
+  level:
+    root: INFO
+    com.carpe.aicodemother: DEBUG
+    dev.langchain4j.community.model.dashscope: DEBUG
+    dev.langchain4j: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# 测试环境配置
+server:
+  port: 0  # 随机端口，避免冲突
