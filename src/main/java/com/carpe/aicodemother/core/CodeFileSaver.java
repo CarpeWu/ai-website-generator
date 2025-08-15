@@ -9,11 +9,14 @@ import com.carpe.aicodemother.model.enums.CodeGenTypeEnum;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+
+import static com.carpe.aicodemother.constant.AppConstant.CODE_OUTPUT_ROOT_DIR;
+
 @Deprecated
 public class CodeFileSaver {
 
     // 文件保存根目录
-    private static final String FILE_SAVE_ROOT_DIR = System.getProperty("user.dir") + "/tmp/code_output";
+    private static final String FILE_SAVE_ROOT_DIR = CODE_OUTPUT_ROOT_DIR;
 
     /**
      * 保存 HtmlCodeResult
