@@ -58,42 +58,43 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
-        // 1. 参数校验
+        // 1. 参数校验: 不合格直接抛业务异常
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
         ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
-        // 2. 查询应用信息
+        // 2. 查询应用信息， 不存在直接抛业务异常
         App app = this.getById(appId);
         ThrowUtils.throwIf(app == null, ErrorCode.PARAMS_ERROR, "应用不存在");
         // 3. 验证用户是否有权限访问该应用, 仅本人可以生成代码
         if (!app.getUserId().equals(loginUser.getId())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限访问该应用");
         }
-        // 4. 获取应用的代码生成类型
+        // 4. 获取应用的代码生成类型: 字符串 -> CodeGenTypeEnum
         String codeGenTypeStr = app.getCodeGenType();
         CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenTypeStr);
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型");
         }
-        // 5. 通过校验后, 添加用户消息到对话历史
+        // 5. 通过校验后, 先把用户消息添加对话历史
         chatHistoryService.addChatMessage(appId, message, ChatHistoryMessageTypeEnum.USER.getValue(), loginUser.getId());
-        // 6. 调用 AI 生成代码 (流式)
+        // 6. 调用 AI, 得到流式的代码片段
         Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
         // 7. 收集 AI 响应内容并完成后记录到对话历史
+        // 把流返回给调用方, 但且在流内侧做两个副作用:
+        // (a) doOnNext: 把每个 chunk 拼到 StringBuilder (在内存里聚合成完整答案)
+        // (b) doOnComplete: 流结束后, 把完整答案作为 AI 消息写入历史
         StringBuilder aiResponseBuilder = new StringBuilder();
+        // map 里做副作用 (收集)
+        // 收集 AI 响应内容
         return contentFlux
-                .map(chunk -> {
-                    // 收集 AI 响应内容
-                    aiResponseBuilder.append(chunk);
-                    return chunk;
-                })
-                .doOnComplete(() -> {
+                .doOnNext(aiResponseBuilder::append) // 收集 AI 响应内容
+                .doOnComplete(() -> {           // 流正常结束 -> 落库完整 AI 回复
                     // 流式响应完成后, 添加 AI 消息到对话历史
                     String aiResponse = aiResponseBuilder.toString();
                     if (StrUtil.isNotBlank(aiResponse)) {
                         chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
                     }
                 })
-                .doOnError(error -> {
+                .doOnError(error -> {           // 流异常 -> 记录错误信息
                     // 如果 AI 回复失败, 也要记录错误信息
                     String errorMessage = "AI消息回复失败: " + error.getMessage();
                     chatHistoryService.addChatMessage(appId, errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());

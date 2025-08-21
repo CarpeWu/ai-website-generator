@@ -8,6 +8,14 @@ spring:
     url: jdbc:mysql://localhost:3306/ai_code_mother
     username: root
     password: ""
+#  # redis
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+#      password:
+#      # 过期时间 (秒)
+#      ttl: 3600
 
 # 测试环境日志配置
 logging:

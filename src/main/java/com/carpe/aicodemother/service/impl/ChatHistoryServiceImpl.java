@@ -1,5 +1,6 @@
 package com.carpe.aicodemother.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.carpe.aicodemother.constant.UserConstant;
 import com.carpe.aicodemother.exception.ErrorCode;
@@ -15,11 +16,16 @@ import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.carpe.aicodemother.model.entity.ChatHistory;
 import com.carpe.aicodemother.mapper.ChatHistoryMapper;
 import com.carpe.aicodemother.service.ChatHistoryService;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 对话历史 服务层实现。
@@ -27,6 +33,7 @@ import java.time.LocalDateTime;
  * @author jaeger
  */
 @Service
+@Slf4j
 public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatHistoryService {
 
     @Resource
@@ -89,6 +96,69 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
             queryWrapper.orderBy("createTime", false);
         }
         return queryWrapper;
+    }
+
+    /**
+     * 将聊天历史记录加载到内存中
+     *
+     * @param appId
+     * @param chatMemory
+     * @param maxCount   最多加载条数, 限制加载的历史消息数量
+     * @return 实际加载的消息条数
+     */
+    @Override
+    public int loadChatHistory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+        try {
+            // 构架数据库查询条件
+            // 注意: limit(1, maxCount) 中的 1 表示偏移量, 跳过最新的 1 条记录
+            // 这样做是为了排除当前正在处理的用户消息, 避免重复加载
+            QueryWrapper queryWrapper = QueryWrapper.create()
+                    .eq(ChatHistory::getAppId, appId)
+                    .orderBy(ChatHistory::getCreateTime, false)
+                    .limit(1, maxCount);
+            // 执行查询, 获取历史记录列表
+            List<ChatHistory> historyList = this.list(queryWrapper);
+            // 检查查询结果是否为空
+            if (CollUtil.isEmpty(historyList)) {
+                log.info("appId: {} 没有找到历史对话记录", appId);
+                return 0; // 返回 0 条记录
+            }
+            // 由于查询是按时间倒序的, 需要反转列表确保时间正序
+            // 这样可以保证在聊天记忆中, 老的消息在前, 新的消息在后
+            historyList = historyList.reversed();
+            // 计数器: 记录实际加载的消息数量
+            int loadedCount = 0;
+            // 清理聊天记忆中的现有内容, 防止重复加载和内存泄露
+            chatMemory.clear();
+            // 遍历历史记录, 按消息类型转转并添加到聊天记忆中
+            for (ChatHistory history : historyList) {
+                // 处理用户消息
+                if (ChatHistoryMessageTypeEnum.USER.getValue().equals(history.getMessageType())) {
+                    // 创建用户消息对象并添加聊天记忆
+                    chatMemory.add(UserMessage.from(history.getMessage()));
+                    loadedCount++;
+                }
+                // 处理AI消息
+                else if (ChatHistoryMessageTypeEnum.AI.getValue().equals(history.getMessageType())) {
+                    // 创建用户消息对象并添加聊天记忆
+                    chatMemory.add(AiMessage.from(history.getMessage()));
+                    loadedCount++;
+                }
+                // 注意: 如果消息类型不是 USER 或 AI, 则跳过该消息 (可能是系统消息等)
+            }
+            // 记录成功加载的日志
+            log.info("成功为 appId: {} 加载了 {} 条历史对话", appId, loadedCount);
+            return loadedCount;
+        } catch (Exception e) {
+            // 异常处理: 记录错误日志但不抛出异常
+            // 这样设计是因为历史记录加载失败不应该影响还需要业务流程
+            log.error("加载历史对话失败, appId : {}, error: {}", appId, e.getMessage());
+            // 返回 0 表示没有加载任何历史记录
+            // 系统可以继续运行, 只是没有历史上下文信息
+            return 0;
+        }
+
+
     }
 
     @Override

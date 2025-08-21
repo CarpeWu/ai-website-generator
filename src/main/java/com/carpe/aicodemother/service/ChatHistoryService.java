@@ -6,6 +6,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.carpe.aicodemother.model.entity.ChatHistory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,6 +17,15 @@ import java.time.LocalDateTime;
  * @author jaeger
  */
 public interface ChatHistoryService extends IService<ChatHistory> {
+
+    /**
+     *  将聊天历史记录加载到内存中
+     * @param appId
+     * @param chatMemory
+     * @param maxCount   最多加载条数, 限制加载的历史消息数量
+     * @return 实际加载的消息条数
+     */
+    int loadChatHistory(Long appId, MessageWindowChatMemory chatMemory, int maxCount);
 
 
     /**
