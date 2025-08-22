@@ -1,27 +1,26 @@
 spring:
   application:
     name: ai-code-mother-backend
-  profiles:
-    active: local
+  # session 配置
+  session:
+    store-type: redis
+    # session 30 天过期
+    timeout: 2592000
   # mysql
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ai_code_mother
     username: root
-    password: ""
+    password:
   # redis
   data:
     redis:
       host: localhost
       port: 6379
       password:
-      # 过期时间 (秒)
       ttl: 3600
-  # session 配置
-  session:
-    store-type: redis
-    # session 30天过期
-    timeout: 259200
+  profiles:
+    active: local
 server:
   port: 8123
   servlet:
@@ -29,23 +28,34 @@ server:
     # cookie 30 天过期
     session:
       cookie:
-        max-age: 259200
-
-# 配置 springdoc-openapi，用于生成 API 文档
+        max-age: 2592000
+# springdoc-openapi
 springdoc:
-  group-configs: # 启用分组功能（用于文档页面分栏显示）
-    - group: 'default'           # 分组名称（你可以建多个）
-      packages-to-scan: com.carpe.aicodemother.controller
-      # 指定哪些包下的 Controller 参与文档生成
-
-# Knife4j 的 UI 设置
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.capre.aicodemother.controller
+# knife4j
 knife4j:
-  enable: true                   # 启用 Knife4j 增强 UI
+  enable: true
   setting:
-    language: zh_cn              # UI 语言设置为中文（zh_cn）
-
-# 日志配置
-logging:
-  level:
-    com.carpe.aicodemother.ai: DEBUG
-    com.carpe.aicodemother.ai.ChatModelLoggingAspect: DEBUG
+    language: zh_cn
+# AI
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: <Your API Key>
+      model-name: qwen3-235b-a22b
+      strict-json-schema: true
+      response-format: json_object
+      max-tokens: 8192
+      log-requests: true
+      log-responses: true
+    streaming-chat-model:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: <Your API Key>
+      model-name: qwen3-235b-a22b
+      max-tokens: 8192
+      log-requests: true
+      log-responses: true

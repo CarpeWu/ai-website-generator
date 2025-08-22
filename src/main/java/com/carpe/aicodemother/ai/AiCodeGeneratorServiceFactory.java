@@ -35,7 +35,7 @@ public class AiCodeGeneratorServiceFactory {
     private ChatModel chatModel;
 
     @Resource
-    private StreamingChatModel qwenStreamingChatModel;
+    private StreamingChatModel openAiStreamingChatModel;
 
     @Resource
     private StreamingChatModel reasoningStreamingChatModel;
@@ -148,7 +148,7 @@ public class AiCodeGeneratorServiceFactory {
             // HTML 单页面和多文件生成：相对简单，使用普通流式模型即可
             case HTML, MULTI_FILE -> AiServices.builder(AiCodeGeneratorService.class)
                     .chatModel(chatModel)                    // 基础对话模型
-                    .streamingChatModel(qwenStreamingChatModel) // 普通流式对话模型
+                    .streamingChatModel(openAiStreamingChatModel) // 普通流式对话模型
                     .chatMemory(chatMemory)                  // 独立的对话记忆
                     .build();
 

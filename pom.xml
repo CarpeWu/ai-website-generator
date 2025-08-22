@@ -55,10 +55,9 @@
             <version>1.1.0</version>
         </dependency>
 
-        <!-- DashScope 社区版 Spring Boot Starter（支持 Qwen） -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-dashscope-spring-boot-starter</artifactId>
+            <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
             <version>1.1.0-beta7</version>
         </dependency>
 

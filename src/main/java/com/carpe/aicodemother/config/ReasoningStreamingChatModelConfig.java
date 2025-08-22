@@ -1,18 +1,19 @@
 package com.carpe.aicodemother.config;
 
-import dev.langchain4j.community.model.dashscope.QwenStreamingChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static dev.langchain4j.community.model.dashscope.QwenStreamingChatModel.builder;
 
 @Configuration
-@ConfigurationProperties(prefix = "langchain4j.community.dashscope.chat-model")
+@ConfigurationProperties(prefix = "langchain4j.open-ai.chat-model")
 @Data
 public class ReasoningStreamingChatModelConfig {
+
+    private String baseUrl;
 
     private String apiKey;
 
@@ -27,10 +28,13 @@ public class ReasoningStreamingChatModelConfig {
         // 生产环境使用：
         // final String modelName = "qwen3-235b-a22b-thinking-2507";
         // final int maxTokens = 32768;
-        return QwenStreamingChatModel.builder()
+        return OpenAiStreamingChatModel.builder()
                 .apiKey(apiKey)
+                .baseUrl(baseUrl)
                 .modelName(modelName)
                 .maxTokens(maxTokens)
+                .logRequests(true)
+                .logResponses(true)
                 .build();
     }
 }
