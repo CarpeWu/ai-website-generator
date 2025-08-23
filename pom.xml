@@ -97,20 +97,21 @@
         <dependency>
             <groupId>com.mybatis-flex</groupId>
             <artifactId>mybatis-flex-spring-boot3-starter</artifactId>
-            <version>1.11.0</version>
+            <version>1.11.1</version>
         </dependency>
 
         <!-- MyBatis-Flex 代码生成 -->
         <dependency>
             <groupId>com.mybatis-flex</groupId>
             <artifactId>mybatis-flex-codegen</artifactId>
-            <version>1.11.0</version>
+            <version>1.11.1</version>
         </dependency>
 
         <!-- HikariCP 连接池 -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
+            <version>4.0.3</version>
         </dependency>
 
         <!-- Hutool 工具类 -->

@@ -7,6 +7,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.carpe.aicodemother.constant.AppConstant;
 import com.carpe.aicodemother.core.AiCodeGeneratorFacade;
+import com.carpe.aicodemother.core.handler.StreamHandlerExecutor;
 import com.carpe.aicodemother.exception.BusinessException;
 import com.carpe.aicodemother.exception.ErrorCode;
 import com.carpe.aicodemother.exception.ThrowUtils;
@@ -23,7 +24,6 @@ import com.carpe.aicodemother.service.ChatHistoryService;
 import com.carpe.aicodemother.service.UserService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import dev.langchain4j.agent.tool.P;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,50 +55,37 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private AiCodeGeneratorFacade aiCodeGeneratorFacade;
     @Resource
     private ChatHistoryService chatHistoryService;
+    @Autowired
+    private StreamHandlerExecutor streamHandlerExecutor;
 
     @Override
     public Flux<String> chatToGenCode(Long appId, String message, User loginUser) {
-        // 1. 参数校验: 不合格直接抛业务异常
+        // 1. 参数校验：应用ID和用户消息不能为空
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 ID 不能为空");
         ThrowUtils.throwIf(StrUtil.isBlank(message), ErrorCode.PARAMS_ERROR, "用户消息不能为空");
-        // 2. 查询应用信息， 不存在直接抛业务异常
+        // 2. 查询应用信息：验证应用是否存在
         App app = this.getById(appId);
         ThrowUtils.throwIf(app == null, ErrorCode.PARAMS_ERROR, "应用不存在");
-        // 3. 验证用户是否有权限访问该应用, 仅本人可以生成代码
+        // 3. 权限校验：仅应用创建者可以生成代码
         if (!app.getUserId().equals(loginUser.getId())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权限访问该应用");
         }
-        // 4. 获取应用的代码生成类型: 字符串 -> CodeGenTypeEnum
+        // 4. 获取并验证代码生成类型：字符串转换为枚举
         String codeGenTypeStr = app.getCodeGenType();
         CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenTypeStr);
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型");
         }
-        // 5. 通过校验后, 先把用户消息添加对话历史
+        // 5. 记录用户消息：先将用户输入保存到聊天历史
         chatHistoryService.addChatMessage(appId, message, ChatHistoryMessageTypeEnum.USER.getValue(), loginUser.getId());
-        // 6. 调用 AI, 得到流式的代码片段
-        Flux<String> contentFlux = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
-        // 7. 收集 AI 响应内容并完成后记录到对话历史
-        // 把流返回给调用方, 但且在流内侧做两个副作用:
-        // (a) doOnNext: 把每个 chunk 拼到 StringBuilder (在内存里聚合成完整答案)
-        // (b) doOnComplete: 流结束后, 把完整答案作为 AI 消息写入历史
-        StringBuilder aiResponseBuilder = new StringBuilder();
-        // map 里做副作用 (收集)
-        // 收集 AI 响应内容
-        return contentFlux
-                .doOnNext(aiResponseBuilder::append) // 收集 AI 响应内容
-                .doOnComplete(() -> {           // 流正常结束 -> 落库完整 AI 回复
-                    // 流式响应完成后, 添加 AI 消息到对话历史
-                    String aiResponse = aiResponseBuilder.toString();
-                    if (StrUtil.isNotBlank(aiResponse)) {
-                        chatHistoryService.addChatMessage(appId, aiResponse, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
-                    }
-                })
-                .doOnError(error -> {           // 流异常 -> 记录错误信息
-                    // 如果 AI 回复失败, 也要记录错误信息
-                    String errorMessage = "AI消息回复失败: " + error.getMessage();
-                    chatHistoryService.addChatMessage(appId, errorMessage, ChatHistoryMessageTypeEnum.AI.getValue(), loginUser.getId());
-                });
+        // 6. 调用AI生成代码：获取原始的流式响应
+        Flux<String> codeStream = aiCodeGeneratorFacade.generateAndSaveCodeStream(message, codeGenTypeEnum, appId);
+        // 7. 流式处理并返回：使用流处理器处理不同类型的响应流
+        // StreamHandlerExecutor会根据codeGenTypeEnum选择合适的处理器：
+        // - VUE_PROJECT: JsonMessageStreamHandler处理工具调用消息
+        // - HTML/MULTI_FILE: SimpleTextStreamHandler处理纯文本
+        // 处理器内部会自动处理AI响应的聊天历史记录
+        return streamHandlerExecutor.doExecute(codeStream, chatHistoryService, appId, loginUser, codeGenTypeEnum);
     }
 
     @Override
