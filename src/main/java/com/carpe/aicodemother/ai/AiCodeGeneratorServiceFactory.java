@@ -128,7 +128,7 @@ public class AiCodeGeneratorServiceFactory {
                 .build();
 
         // 从数据库加载历史对话到记忆中
-        chatHistoryService.loadChatHistory(appId, chatMemory, 20);
+        chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, 20);
 
         // 根据代码生成类型选择相应的 AI 服务配置
         return switch (codeGenType) {

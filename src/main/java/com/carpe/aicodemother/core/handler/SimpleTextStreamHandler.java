@@ -1,4 +1,5 @@
-package com.carpe.aicodemother.core.handler;
+package com.yupi.yuaicodemother.core.handler;
+
 
 import com.carpe.aicodemother.model.entity.User;
 import com.carpe.aicodemother.model.enums.ChatHistoryMessageTypeEnum;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
  */
 @Slf4j
 public class SimpleTextStreamHandler {
+
 
     /**
      * 处理传统流（HTML, MULTI_FILE）

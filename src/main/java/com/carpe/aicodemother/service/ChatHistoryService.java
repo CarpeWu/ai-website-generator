@@ -8,7 +8,6 @@ import com.mybatisflex.core.service.IService;
 import com.carpe.aicodemother.model.entity.ChatHistory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -25,7 +24,7 @@ public interface ChatHistoryService extends IService<ChatHistory> {
      * @param maxCount   最多加载条数, 限制加载的历史消息数量
      * @return 实际加载的消息条数
      */
-    int loadChatHistory(Long appId, MessageWindowChatMemory chatMemory, int maxCount);
+    int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount);
 
 
     /**

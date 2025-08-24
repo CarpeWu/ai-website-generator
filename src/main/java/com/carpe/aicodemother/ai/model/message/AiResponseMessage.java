@@ -1,5 +1,7 @@
 package com.carpe.aicodemother.ai.model.message;
 
+import com.carpe.aicodemother.ai.model.message.StreamMessage;
+import com.carpe.aicodemother.ai.model.message.StreamMessageTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -12,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AiResponseMessage extends StreamMessage {
 
-    // AI 响应消息
     private String data;
 
     public AiResponseMessage(String data) {

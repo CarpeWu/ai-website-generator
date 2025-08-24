@@ -107,7 +107,7 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
      * @return 实际加载的消息条数
      */
     @Override
-    public int loadChatHistory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+    public int loadChatHistoryToMemory(Long appId, MessageWindowChatMemory chatMemory, int maxCount) {
         try {
             // 构架数据库查询条件
             // 注意: limit(1, maxCount) 中的 1 表示偏移量, 跳过最新的 1 条记录

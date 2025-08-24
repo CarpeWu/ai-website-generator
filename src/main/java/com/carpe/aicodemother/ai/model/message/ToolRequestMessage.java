@@ -1,5 +1,7 @@
 package com.carpe.aicodemother.ai.model.message;
 
+import com.carpe.aicodemother.ai.model.message.StreamMessage;
+import com.carpe.aicodemother.ai.model.message.StreamMessageTypeEnum;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

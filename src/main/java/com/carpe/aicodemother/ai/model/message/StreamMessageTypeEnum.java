@@ -24,7 +24,7 @@ public enum StreamMessageTypeEnum {
      * 根据值获取枚举
      */
     public static StreamMessageTypeEnum getEnumByValue(String value) {
-        for (StreamMessageTypeEnum typeEnum : values()) { // values(): 枚举的内置方法, 返回所有枚举常量的数组 相当于: [AI_RESPONSE, TOOL_REQUEST, TOOL_EXECUTED]
+        for (StreamMessageTypeEnum typeEnum : values()) {
             if (typeEnum.getValue().equals(value)) {
                 return typeEnum;
             }
