@@ -21,17 +21,28 @@ import java.util.List;
 public interface AppService extends IService<App> {
 
     /**
-     *  通过对话生成应用代码
-     * @param appId 应用 ID
-     * @param message 提示词
+     * 通过对话生成应用代码
+     *
+     * @param appId     应用 ID
+     * @param message   提示词
      * @param loginUser 登录用户
      * @return
      */
     Flux<String> chatToGenCode(Long appId, String message, User loginUser);
 
     /**
-     *  应用部署
-     * @param appId 应用 ID
+     * 创建应用
+     *
+     * @param appAddRequest 前端传来的应用创建请求对象
+     * @param loginUser     当前登录的用户信息
+     * @return 应用ID
+     */
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
+
+    /**
+     * 应用部署
+     *
+     * @param appId     应用 ID
      * @param loginUser 登录用户
      * @return 可访问的部署地址
      */
