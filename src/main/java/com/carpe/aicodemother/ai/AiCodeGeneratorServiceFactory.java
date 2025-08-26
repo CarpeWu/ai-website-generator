@@ -1,10 +1,10 @@
 package com.carpe.aicodemother.ai;
 
-import com.carpe.aicodemother.ai.tools.FileWriteTool;
 import com.carpe.aicodemother.exception.BusinessException;
 import com.carpe.aicodemother.exception.ErrorCode;
 import com.carpe.aicodemother.model.enums.CodeGenTypeEnum;
 import com.carpe.aicodemother.service.ChatHistoryService;
+import com.carpe.aicodemother.ai.tools.ToolManager;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
@@ -45,6 +45,9 @@ public class AiCodeGeneratorServiceFactory {
 
     @Resource
     private ChatHistoryService chatHistoryService;
+
+    @Resource
+    private ToolManager toolManager;
 
     /**
      * AI 服务实例缓存
@@ -137,7 +140,7 @@ public class AiCodeGeneratorServiceFactory {
                     .chatModel(chatModel)                           // 基础对话模型
                     .streamingChatModel(reasoningStreamingChatModel) // 推理能力强的流式模型
                     .chatMemoryProvider(memoryId -> chatMemory)     // 独立的记忆提供者
-                    .tools(new FileWriteTool())                     // 文件写入工具（Vue项目需要创建多个文件）
+                    .tools(toolManager.getAllTools())                     // 文件工具
                     // 处理工具调用幻觉问题：当 AI 尝试调用不存在的工具时的处理策略
                     .hallucinatedToolNameStrategy(toolExecutionRequest ->
                             ToolExecutionResultMessage.from(toolExecutionRequest,
