@@ -20,7 +20,7 @@ class CodeGenWorkflowTest {
 
     @Test
     void testCorporateWorkflow() {
-        WorkflowContext result = new CodeGenWorkflow().executeWorkflow("创建二次元企业官网，展示公司形象和业务介绍,使用多文件形式 HTML, CSS, JS 不涉及 VUE");
+        WorkflowContext result = new CodeGenWorkflow().executeWorkflow("创建科技企业官网，展示公司形象和业务介绍,使用多文件形式 HTML, CSS, JS 不涉及 VUE");
         Assertions.assertNotNull(result);
         System.out.println("生成类型: " + result.getGenerationType());
         System.out.println("生成的代码目录: " + result.getGeneratedCodeDir());
