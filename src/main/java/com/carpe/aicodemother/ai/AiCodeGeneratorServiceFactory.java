@@ -5,6 +5,7 @@ import com.carpe.aicodemother.exception.ErrorCode;
 import com.carpe.aicodemother.model.enums.CodeGenTypeEnum;
 import com.carpe.aicodemother.service.ChatHistoryService;
 import com.carpe.aicodemother.ai.tools.ToolManager;
+import com.carpe.aicodemother.utils.SpringContextUtil;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import dev.langchain4j.community.store.memory.chat.redis.RedisChatMemoryStore;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.annotation.Configuration;
 
+import javax.swing.*;
 import java.time.Duration;
 
 /**
@@ -31,14 +33,8 @@ import java.time.Duration;
 @Slf4j
 public class AiCodeGeneratorServiceFactory {
 
-    @Resource
+    @Resource(name = "openAiChatModel")
     private ChatModel chatModel;
-
-    @Resource
-    private StreamingChatModel openAiStreamingChatModel;
-
-    @Resource
-    private StreamingChatModel reasoningStreamingChatModel;
 
     @Resource
     private RedisChatMemoryStore redisChatMemoryStore;
@@ -52,10 +48,10 @@ public class AiCodeGeneratorServiceFactory {
     /**
      * AI 服务实例缓存
      * 作用: 缓存不同 appId 和代码生成类型组合对应的 AI 服务对象，避免重复创建，提高性能
-     *
+     * <p>
      * 缓存键策略: 使用 "appId_codeGenType" 格式的组合键
      * 例如: "123_HTML", "123_VUE_PROJECT", "456_MULTI_FILE"
-     *
+     * <p>
      * 缓存策略:
      * - 最大缓存 1000 个实例 (避免无限增长导致内存溢出)
      * - 写入后 30 分钟过期 (保证服务不会长期占用内存)
@@ -88,7 +84,7 @@ public class AiCodeGeneratorServiceFactory {
     /**
      * 根据 appId 和代码生成类型获取 AI 服务实例（带缓存机制）
      * 支持多种代码生成类型，每种类型使用不同的 AI 模型配置
-     *
+     * <p>
      * 缓存逻辑:
      * - 命中缓存 -> 直接返回缓存的服务实例
      * - 未命中缓存 -> 创建新的服务实例并存入缓存
@@ -108,7 +104,7 @@ public class AiCodeGeneratorServiceFactory {
     /**
      * 创建新的 AI 服务实例
      * 根据不同的代码生成类型配置相应的 AI 模型、工具和策略
-     *
+     * <p>
      * 服务特性:
      * - 每个 appId 拥有独立的 AI 服务对象
      * - 每个服务对象带有独立的对话记忆（MessageWindowChatMemory）
@@ -133,38 +129,39 @@ public class AiCodeGeneratorServiceFactory {
         // 从数据库加载历史对话到记忆中
         chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, 20);
 
-        // 根据代码生成类型选择相应的 AI 服务配置
+        // 根据代码生成类型选择不同的模型配置
         return switch (codeGenType) {
-            // Vue 项目生成：复杂项目，需要推理能力强的模型 + 文件操作工具
-            case VUE_PROJECT -> AiServices.builder(AiCodeGeneratorService.class)
-                    .chatModel(chatModel)                           // 基础对话模型
-                    .streamingChatModel(reasoningStreamingChatModel) // 推理能力强的流式模型
-                    .chatMemoryProvider(memoryId -> chatMemory)     // 独立的记忆提供者
-                    .tools(toolManager.getAllTools())                     // 文件工具
-                    // 处理工具调用幻觉问题：当 AI 尝试调用不存在的工具时的处理策略
-                    .hallucinatedToolNameStrategy(toolExecutionRequest ->
-                            ToolExecutionResultMessage.from(toolExecutionRequest,
-                                    "Error: there is no tool called " + toolExecutionRequest.name())
-                    )
-                    .build();
-
-            // HTML 单页面和多文件生成：相对简单，使用普通流式模型即可
-            case HTML, MULTI_FILE -> AiServices.builder(AiCodeGeneratorService.class)
-                    .chatModel(chatModel)                    // 基础对话模型
-                    .streamingChatModel(openAiStreamingChatModel) // 普通流式对话模型
-                    .chatMemory(chatMemory)                  // 独立的对话记忆
-                    .build();
-
-            // 不支持的代码生成类型，抛出业务异常
+            case VUE_PROJECT -> {
+                // 使用多例模式的 StreamingChatModel 解决并发问题
+                StreamingChatModel reasoningStreamingChatModel = SpringContextUtil.getBean("reasoningStreamingChatModelPrototype", StreamingChatModel.class);
+                yield AiServices.builder(AiCodeGeneratorService.class)
+                        .streamingChatModel(reasoningStreamingChatModel)
+                        .chatMemoryProvider(memoryId -> chatMemory)
+                        .tools(toolManager.getAllTools())
+                        .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
+                                toolExecutionRequest, "Error: there is no tool called " + toolExecutionRequest.name()
+                        ))
+                        .build();
+            }
+            case HTML, MULTI_FILE -> {
+                // 使用多例模式的 StreamingChatModel 解决并发问题
+                StreamingChatModel openAiStreamingChatModel = SpringContextUtil.getBean("streamingChatModelPrototype", StreamingChatModel.class);
+                yield AiServices.builder(AiCodeGeneratorService.class)
+                        .chatModel(chatModel)
+                        .streamingChatModel(openAiStreamingChatModel)
+                        .chatMemory(chatMemory)
+                        .build();
+            }
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR,
                     "不支持的代码生成类型: " + codeGenType.getValue());
         };
+
     }
 
     /**
      * 构造缓存键
      * 将 appId 和代码生成类型组合成唯一的缓存键
-     *
+     * <p>
      * 格式: "appId_codeGenType"
      * 例如: "123_HTML", "456_VUE_PROJECT"
      *
