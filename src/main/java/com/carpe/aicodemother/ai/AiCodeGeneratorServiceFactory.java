@@ -1,8 +1,9 @@
 package com.carpe.aicodemother.ai;
 
+import com.carpe.aicodemother.ai.guardrail.RetryOutputGuardrail;
 import com.carpe.aicodemother.exception.BusinessException;
 import com.carpe.aicodemother.exception.ErrorCode;
-import com.carpe.aicodemother.guardrail.PromptSafetyInputGuardrail;
+import com.carpe.aicodemother.ai.guardrail.PromptSafetyInputGuardrail;
 import com.carpe.aicodemother.model.enums.CodeGenTypeEnum;
 import com.carpe.aicodemother.service.ChatHistoryService;
 import com.carpe.aicodemother.ai.tools.ToolManager;
@@ -20,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.annotation.Configuration;
 
-import javax.swing.*;
 import java.time.Duration;
 
 /**
@@ -142,7 +142,9 @@ public class AiCodeGeneratorServiceFactory {
                         .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                                 toolExecutionRequest, "Error: there is no tool called " + toolExecutionRequest.name()
                         ))
+                        .maxSequentialToolsInvocations(20)  //最多连续调用 20 次工具
                         .inputGuardrails(new PromptSafetyInputGuardrail())  // 添加输入护轨
+//                        .outputGuardrails(new RetryOutputGuardrail())  // 添加输出护轨, 为了流式输出, 这里不使用
                         .build();
             }
             case HTML, MULTI_FILE -> {
@@ -153,6 +155,7 @@ public class AiCodeGeneratorServiceFactory {
                         .streamingChatModel(openAiStreamingChatModel)
                         .chatMemory(chatMemory)
                         .inputGuardrails(new PromptSafetyInputGuardrail())  // 添加输入护轨
+//                        .outputGuardrails(new RetryOutputGuardrail())  // 添加输出护轨, 为了流式输出, 这里不使用
                         .build();
             }
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR,

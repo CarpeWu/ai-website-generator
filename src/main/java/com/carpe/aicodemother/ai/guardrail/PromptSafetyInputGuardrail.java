@@ -1,4 +1,4 @@
-package com.carpe.aicodemother.guardrail;
+package com.carpe.aicodemother.ai.guardrail;
 
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.guardrail.InputGuardrail;
