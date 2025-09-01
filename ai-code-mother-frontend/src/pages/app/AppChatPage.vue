@@ -217,7 +217,7 @@ import { useLoginUserStore } from '@/stores/loginUser'
 import {
   getAppVoById,
   deployApp as deployAppApi,
-  deleteApp as deleteAppApi,
+  deleteApp as deleteAppApi
 } from '@/api/appController'
 import { listAppChatHistory } from '@/api/chatHistoryController'
 import { CodeGenTypeEnum, formatCodeGenType } from '@/utils/codeGenTypes'
@@ -236,7 +236,7 @@ import {
   ExportOutlined,
   InfoCircleOutlined,
   DownloadOutlined,
-  EditOutlined,
+  EditOutlined
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
@@ -284,7 +284,7 @@ const selectedElementInfo = ref<ElementInfo | null>(null)
 const visualEditor = new VisualEditor({
   onElementSelected: (elementInfo: ElementInfo) => {
     selectedElementInfo.value = elementInfo
-  },
+  }
 })
 
 // 权限相关
@@ -311,7 +311,7 @@ const loadChatHistory = async (isLoadMore = false) => {
   try {
     const params: API.listAppChatHistoryParams = {
       appId: appId.value,
-      pageSize: 10,
+      pageSize: 10
     }
     // 如果是加载更多，传递最后一条消息的创建时间作为游标
     if (isLoadMore && lastCreateTime.value) {
@@ -326,7 +326,7 @@ const loadChatHistory = async (isLoadMore = false) => {
           .map((chat) => ({
             type: (chat.messageType === 'user' ? 'user' : 'ai') as 'user' | 'ai',
             content: chat.message || '',
-            createTime: chat.createTime,
+            createTime: chat.createTime
           }))
           .reverse() // 反转数组，让老消息在前
         if (isLoadMore) {
@@ -406,7 +406,7 @@ const sendInitialMessage = async (prompt: string) => {
   // 添加用户消息
   messages.value.push({
     type: 'user',
-    content: prompt,
+    content: prompt
   })
 
   // 添加AI消息占位符
@@ -414,7 +414,7 @@ const sendInitialMessage = async (prompt: string) => {
   messages.value.push({
     type: 'ai',
     content: '',
-    loading: true,
+    loading: true
   })
 
   await nextTick()
@@ -448,7 +448,7 @@ const sendMessage = async () => {
   // 添加用户消息（包含元素信息）
   messages.value.push({
     type: 'user',
-    content: message,
+    content: message
   })
 
   // 发送消息后，清除选中元素并退出编辑模式
@@ -464,7 +464,7 @@ const sendMessage = async () => {
   messages.value.push({
     type: 'ai',
     content: '',
-    loading: true,
+    loading: true
   })
 
   await nextTick()
@@ -487,20 +487,20 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
     // 构建URL参数
     const params = new URLSearchParams({
       appId: appId.value || '',
-      message: userMessage,
+      message: userMessage
     })
 
     const url = `${baseURL}/app/chat/gen/code?${params}`
 
     // 创建 EventSource 连接
     eventSource = new EventSource(url, {
-      withCredentials: true,
+      withCredentials: true
     })
 
     let fullContent = ''
 
     // 处理接收到的消息
-    eventSource.onmessage = function (event) {
+    eventSource.onmessage = function(event) {
       if (streamCompleted) return
 
       try {
@@ -522,7 +522,7 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
     }
 
     // 处理done事件
-    eventSource.addEventListener('done', function () {
+    eventSource.addEventListener('done', function() {
       if (streamCompleted) return
 
       streamCompleted = true
@@ -536,8 +536,31 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
       }, 1000)
     })
 
+// 处理business-error事件（后端限流等错误）
+    eventSource.addEventListener('business-error', function(event: MessageEvent) {
+      if (streamCompleted) return
+
+      try {
+        const errorData = JSON.parse(event.data)
+        console.error('SSE业务错误事件:', errorData)
+
+        // 显示具体的错误信息
+        const errorMessage = errorData.message || '生成过程中出现错误'
+        messages.value[aiMessageIndex].content = `❌ ${errorMessage}`
+        messages.value[aiMessageIndex].loading = false
+        message.error(errorMessage)
+
+        streamCompleted = true
+        isGenerating.value = false
+        eventSource?.close()
+      } catch (parseError) {
+        console.error('解析错误事件失败:', parseError, '原始数据:', event.data)
+        handleError(new Error('服务器返回错误'), aiMessageIndex)
+      }
+    })
+
     // 处理错误
-    eventSource.onerror = function () {
+    eventSource.onerror = function() {
       if (streamCompleted || !isGenerating.value) return
       // 检查是否是正常的连接关闭
       if (eventSource?.readyState === EventSource.CONNECTING) {
@@ -597,7 +620,7 @@ const downloadCode = async () => {
     const url = `${API_BASE_URL}/app/download/${appId.value}`
     const response = await fetch(url, {
       method: 'GET',
-      credentials: 'include',
+      credentials: 'include'
     })
     if (!response.ok) {
       throw new Error(`下载失败: ${response.status}`)
@@ -633,7 +656,7 @@ const deployApp = async () => {
   deploying.value = true
   try {
     const res = await deployAppApi({
-      appId: appId.value as unknown as number,
+      appId: appId.value as unknown as number
     })
 
     if (res.data.code === 0 && res.data.data) {
