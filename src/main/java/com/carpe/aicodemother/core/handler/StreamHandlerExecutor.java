@@ -1,6 +1,5 @@
 package com.carpe.aicodemother.core.handler;
 
-import com.carpe.aicodemother.core.handler.JsonMessageStreamHandler;
 
 import com.carpe.aicodemother.model.entity.User;
 import com.carpe.aicodemother.model.enums.CodeGenTypeEnum;
@@ -40,7 +39,7 @@ public class StreamHandlerExecutor {
             case VUE_PROJECT -> // 使用注入的组件实例
                     jsonMessageStreamHandler.handle(originFlux, chatHistoryService, appId, loginUser);
             case HTML, MULTI_FILE -> // 简单文本处理器不需要依赖注入
-                    new com.yupi.yuaicodemother.core.handler.SimpleTextStreamHandler().handle(originFlux, chatHistoryService, appId, loginUser);
+                    new SimpleTextStreamHandler().handle(originFlux, chatHistoryService, appId, loginUser);
         };
     }
 }

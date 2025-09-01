@@ -1,4 +1,4 @@
-package com.yupi.yuaicodemother.core.handler;
+package com.carpe.aicodemother.core.handler;
 
 
 import com.carpe.aicodemother.model.entity.User;
