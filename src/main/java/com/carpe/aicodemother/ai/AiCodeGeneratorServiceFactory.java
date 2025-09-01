@@ -2,6 +2,7 @@ package com.carpe.aicodemother.ai;
 
 import com.carpe.aicodemother.exception.BusinessException;
 import com.carpe.aicodemother.exception.ErrorCode;
+import com.carpe.aicodemother.guardrail.PromptSafetyInputGuardrail;
 import com.carpe.aicodemother.model.enums.CodeGenTypeEnum;
 import com.carpe.aicodemother.service.ChatHistoryService;
 import com.carpe.aicodemother.ai.tools.ToolManager;
@@ -141,6 +142,7 @@ public class AiCodeGeneratorServiceFactory {
                         .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                                 toolExecutionRequest, "Error: there is no tool called " + toolExecutionRequest.name()
                         ))
+                        .inputGuardrails(new PromptSafetyInputGuardrail())  // 添加输入护轨
                         .build();
             }
             case HTML, MULTI_FILE -> {
@@ -150,6 +152,7 @@ public class AiCodeGeneratorServiceFactory {
                         .chatModel(chatModel)
                         .streamingChatModel(openAiStreamingChatModel)
                         .chatMemory(chatMemory)
+                        .inputGuardrails(new PromptSafetyInputGuardrail())  // 添加输入护轨
                         .build();
             }
             default -> throw new BusinessException(ErrorCode.SYSTEM_ERROR,
