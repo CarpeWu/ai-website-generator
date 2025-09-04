@@ -35,19 +35,24 @@ springdoc:
   group-configs:
     - group: 'default'
       paths-to-match: '/**'
-      packages-to-scan: com.capre.aicodemother.controller
+      packages-to-scan: com.carpe.aicodemother.controller
 # knife4j
+# 接口文档配置
 knife4j:
   enable: true
+  basic:
+    enable: true
+    username: root
+    password: 123456
   setting:
     language: zh_cn
 # AI
 langchain4j:
   open-ai:
     chat-model:
-      base-url: https://api.deepseek.com
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
       api-key: <Your API Key>
-      model-name: deepseek-chat
+      model-name: qwen3-coder-480b-a35b-instruct
       #      strict-json-schema: true
       #      response-format: json_object
       max-tokens: 8192
@@ -55,36 +60,36 @@ langchain4j:
       log-responses: true
       max-retries: 3
     streaming-chat-model:
-      base-url: https://api.deepseek.com
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
       api-key: <Your API Key>
-      model-name: deepseek-chat
+      model-name: qwen3-coder-480b-a35b-instruct
       max-tokens: 8192
       log-requests: true
       log-responses: true
     # 推理 AI 模型配置（用于复杂的推理任务）
     reasoning-streaming-chat-model:
-      base-url: https://api.deepseek.com
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
       api-key: <Your API Key>
-      model-name: deepseek-reasoner
+      model-name: qwen3-coder-plus-2025-07-22
       max-tokens: 32768
       temperature: 0.1
       log-requests: true
       log-responses: true
     # 智能路由 AI 模型配置（用于简单的分类任务）
     routing-chat-model:
-      base-url: https://api.deepseek.com
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
       api-key: <Your API Key>
-      model-name: deepseek-chat
+      model-name: qwen3-coder-480b-a35b-instruct
       log-requests: true
       log-responses: true
 # 添加 COS 对象存储配置（需要从腾讯云获取）
 cos:
   client:
-    host: your-custom-domain.com
-    secretId: your-secret-id
-    secretKey: your-secret-key
-    region: ap-shanghai
-    bucket: your-bucket-name
+    host: <your-custom-domain.com>
+    secretId: <your-secret-id>
+    secretKey: <your-secret-key>
+    region: <your-region>
+    bucket: <your-bucket-name>
 # Pexels 图片搜索配置
 pexels:
   api-key: <Your API Key>
