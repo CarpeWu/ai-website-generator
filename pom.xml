@@ -123,6 +123,14 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
 
 
         <!-- MySQL 驱动 -->
@@ -204,14 +212,14 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-<!--                    <excludes>-->
-<!--                        生成环境打包 需注销-->
-<!--                        <exclude>-->
-<!--                            <groupId>org.projectlombok</groupId>-->
-<!--                            <artifactId>lombok</artifactId>-->
-<!--                            <version>1.18.36</version>-->
-<!--                        </exclude>-->
-<!--                    </excludes>-->
+                    <!--                    <excludes>-->
+                    <!--                        生成环境打包 需注销-->
+                    <!--                        <exclude>-->
+                    <!--                            <groupId>org.projectlombok</groupId>-->
+                    <!--                            <artifactId>lombok</artifactId>-->
+                    <!--                            <version>1.18.36</version>-->
+                    <!--                        </exclude>-->
+                    <!--                    </excludes>-->
                 </configuration>
             </plugin>
         </plugins>

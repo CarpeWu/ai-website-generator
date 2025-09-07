@@ -97,4 +97,12 @@ pexels:
 dashscope:
   api-key: <Your API Key>
   image-model: <Your Model>
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
 
