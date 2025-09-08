@@ -195,7 +195,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>  implements U
         if (!saveResult) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败, 数据库错误");
         }
-        return user.getId();
+        
+        // 5. 更新用户名为'用户XXXX'格式（XXXX为用户ID后4位）
+        Long userId = user.getId();
+        String userIdStr = String.valueOf(userId);
+        String lastFourDigits = userIdStr.length() >= 4 ? 
+            userIdStr.substring(userIdStr.length() - 4) : 
+            String.format("%04d", userId % 10000);
+        user.setUserName("用户" + lastFourDigits);
+        this.updateById(user);
+        
+        return userId;
     }
     @Override
     public String getEncryptPassword(String userPassword) {

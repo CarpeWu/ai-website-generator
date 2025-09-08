@@ -24,9 +24,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.carpe.aicodemother.model.entity.User;
 import com.carpe.aicodemother.service.UserService;
+import com.carpe.aicodemother.manager.CosManager;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 用户 控制层。
@@ -35,6 +42,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
     /**
@@ -129,6 +137,9 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private CosManager cosManager;
 
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
@@ -235,4 +246,101 @@ public class UserController {
         return userService.page(page);
     }
 
+    /**
+     * 上传用户头像
+     */
+    /**
+     * 更新当前用户信息（普通用户可用）
+     */
+    @PostMapping("/update/profile")
+    public BaseResponse<Boolean> updateUserProfile(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        if (userUpdateRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        
+        // 只允许用户更新自己的信息
+        User user = new User();
+        user.setId(loginUser.getId());
+        
+        // 只允许更新用户名，其他敏感信息不允许更新
+        if (userUpdateRequest.getUserName() != null) {
+            user.setUserName(userUpdateRequest.getUserName());
+        }
+        
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/upload/avatar")
+    public BaseResponse<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        // 参数校验
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件不能为空");
+        }
+        
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        
+        // 文件大小限制（5MB）
+        long maxSize = 5 * 1024 * 1024;
+        if (file.getSize() > maxSize) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过5MB");
+        }
+        
+        // 文件类型校验
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件名不能为空");
+        }
+        
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+        if (!".jpg".equals(fileExtension) && !".jpeg".equals(fileExtension) && !".png".equals(fileExtension)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "只支持jpg、jpeg、png格式的图片");
+        }
+        
+        try {
+            // 生成唯一文件名
+            String fileName = "avatar/" + loginUser.getId() + "/" + UUID.randomUUID().toString() + fileExtension;
+            
+            // 创建临时文件
+            File tempFile = File.createTempFile("avatar", fileExtension);
+            file.transferTo(tempFile);
+            
+            // 上传到COS
+            String avatarUrl = cosManager.uploadFile(fileName, tempFile);
+            
+            // 删除临时文件
+            tempFile.delete();
+            
+            if (avatarUrl == null) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "头像上传失败");
+            }
+            
+            // 更新用户头像URL
+            User updateUser = new User();
+            updateUser.setId(loginUser.getId());
+            updateUser.setUserAvatar(avatarUrl);
+            boolean result = userService.updateById(updateUser);
+            
+            if (!result) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "更新用户头像失败");
+            }
+            
+            return ResultUtils.success(avatarUrl);
+            
+        } catch (IOException e) {
+            log.error("头像上传失败", e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "头像上传失败");
+        }
+    }
 }

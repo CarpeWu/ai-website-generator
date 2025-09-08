@@ -48,7 +48,21 @@ public class CosManager {
         PutObjectResult result = putObject(key, file);
         if (result != null) {
             // 构建访问URL
-            String url = String.format("%s%s", cosClientConfig.getHost(), key);
+            String url;
+            if (cosClientConfig.getHost() != null && !cosClientConfig.getHost().isEmpty()) {
+                // 如果配置了自定义域名，使用自定义域名
+                String host = cosClientConfig.getHost();
+                // 如果host已经包含协议，直接使用；否则添加https://
+                if (host.startsWith("http://") || host.startsWith("https://")) {
+                    url = String.format("%s/%s", host, key);
+                } else {
+                    url = String.format("https://%s/%s", host, key);
+                }
+            } else {
+                // 使用默认的COS域名格式
+                url = String.format("https://%s.cos.%s.myqcloud.com/%s", 
+                    cosClientConfig.getBucket(), cosClientConfig.getRegion(), key);
+            }
             log.info("文件上传COS成功: {} -> {}", file.getName(), url);
             return url;
         } else {

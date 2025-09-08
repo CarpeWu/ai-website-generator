@@ -1,9 +1,8 @@
 package com.carpe.aicodemother.ai;
 
-import com.carpe.aicodemother.ai.guardrail.RetryOutputGuardrail;
+import com.carpe.aicodemother.ai.guardrail.PromptSafetyInputGuardrail;
 import com.carpe.aicodemother.exception.BusinessException;
 import com.carpe.aicodemother.exception.ErrorCode;
-import com.carpe.aicodemother.ai.guardrail.PromptSafetyInputGuardrail;
 import com.carpe.aicodemother.model.enums.CodeGenTypeEnum;
 import com.carpe.aicodemother.service.ChatHistoryService;
 import com.carpe.aicodemother.ai.tools.ToolManager;
@@ -124,7 +123,7 @@ public class AiCodeGeneratorServiceFactory {
                 .builder()
                 .id(appId)                            // 记忆与 appId 绑定，保证不同应用的对话不混淆
                 .chatMemoryStore(redisChatMemoryStore) // 使用 Redis 存储记忆，保证数据持久化
-                .maxMessages(20)                      // 最多保存最近 20 条消息，控制内存占用
+                .maxMessages(100)                      // 最多保存最近 100 条消息，控制内存占用
                 .build();
 
         // 从数据库加载历史对话到记忆中

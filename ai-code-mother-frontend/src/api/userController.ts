@@ -1,4 +1,3 @@
-// @ts-ignore
 /* eslint-disable */
 import request from '@/request'
 
@@ -194,6 +193,18 @@ export async function update(body: API.User, options?: { [key: string]: any }) {
 /** 此处后端没有提供注释 POST /user/update */
 export async function updateUser(body: API.UserUpdateRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean>('/user/update', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 更新当前用户信息（普通用户可用） POST /user/update/profile */
+export async function updateUserProfile(body: API.UserUpdateRequest, options?: { [key: string]: any }) {
+  return request<API.BaseResponseBoolean>('/user/update/profile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

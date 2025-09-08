@@ -1,6 +1,11 @@
 spring:
   application:
     name: ai-code-mother-backend
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   # session 配置
   session:
     store-type: redis
