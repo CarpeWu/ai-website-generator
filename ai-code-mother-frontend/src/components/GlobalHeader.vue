@@ -57,7 +57,7 @@ import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { userLogout } from '@/api/userController.ts'
-import { LogoutOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { LogoutOutlined, HomeOutlined, UserOutlined, GithubOutlined } from '@ant-design/icons-vue'
 import defaultAvatar from '@/assets/images/default-avatar.jpg'
 
 const loginUserStore = useLoginUserStore()
@@ -88,9 +88,10 @@ const originItems = [
     title: '应用管理',
   },
   {
-    key: 'others',
-    label: h('a', { href: 'https://www.codefather.cn', target: '_blank' }, '编程导航'),
-    title: '编程导航',
+    key: 'github',
+    icon: () => h(GithubOutlined),
+    label: h('a', { href: 'https://github.com/CarpeWu', target: '_blank' }, 'GitHub'),
+    title: 'GitHub',
   },
 ]
 
