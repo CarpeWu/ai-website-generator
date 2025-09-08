@@ -54,8 +54,14 @@ public class CosManager {
                 String host = cosClientConfig.getHost();
                 // 如果host已经包含协议，直接使用；否则添加https://
                 if (host.startsWith("http://") || host.startsWith("https://")) {
+                    // 确保host末尾没有斜杠，key开头没有斜杠，避免双斜杠问题
+                    host = host.endsWith("/") ? host.substring(0, host.length() - 1) : host;
+                    key = key.startsWith("/") ? key.substring(1) : key;
                     url = String.format("%s/%s", host, key);
                 } else {
+                    // 确保host末尾没有斜杠，key开头没有斜杠，避免双斜杠问题
+                    host = host.endsWith("/") ? host.substring(0, host.length() - 1) : host;
+                    key = key.startsWith("/") ? key.substring(1) : key;
                     url = String.format("https://%s/%s", host, key);
                 }
             } else {

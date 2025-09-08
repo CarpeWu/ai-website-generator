@@ -70,7 +70,7 @@ public class ScreenshotServiceImpl implements ScreenshotService {
      */
     private String generateScreenshotKey(String fileName) {
         String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        return String.format("/screenshots/%s/%s", datePath, fileName);
+        return String.format("screenshots/%s/%s", datePath, fileName);
     }
 
     /**
