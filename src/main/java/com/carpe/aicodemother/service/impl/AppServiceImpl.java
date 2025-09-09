@@ -7,6 +7,8 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.carpe.aicodemother.ai.AiCodeGenTypeRoutingService;
 import com.carpe.aicodemother.ai.AiCodeGenTypeRoutingServiceFactory;
+import com.carpe.aicodemother.ai.AppNameGeneratorService;
+import com.carpe.aicodemother.ai.AppNameGeneratorServiceFactory;
 import com.carpe.aicodemother.constant.AppConstant;
 import com.carpe.aicodemother.core.AiCodeGeneratorFacade;
 import com.carpe.aicodemother.core.builder.VueProjectBuilder;
@@ -71,6 +73,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
 
+    @Resource
+    private AppNameGeneratorServiceFactory appNameGeneratorServiceFactory;
+
     @Value("${code.deploy-host:http://localhost}")
     private String deployHost;
 
@@ -128,8 +133,12 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         App app = new App();
         BeanUtil.copyProperties(appAddRequest, app);
         app.setUserId(loginUser.getId());
-        // 应用名称暂时为 initPrompt 前 12 位
-        app.setAppName(initPrompt.substring(0, Math.min(initPrompt.length(), 12)));
+        
+        // 使用 AI 智能生成应用名称（多例模式）
+        AppNameGeneratorService nameGeneratorService = appNameGeneratorServiceFactory.createAppNameGeneratorService();
+        String generatedAppName = nameGeneratorService.generateAppName(initPrompt);
+        app.setAppName(generatedAppName);
+        
         // 使用 AI 智能选择代码生成类型（多例模式）
         AiCodeGenTypeRoutingService routingService = aiCodeGenTypeRoutingServiceFactory.createAiCodeGenTypeRoutingService();
         CodeGenTypeEnum selectedCodeGenType = routingService.routeCodeGenType(initPrompt);
