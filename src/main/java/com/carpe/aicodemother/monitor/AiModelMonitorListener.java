@@ -31,9 +31,15 @@ public class AiModelMonitorListener implements ChatModelListener {
         requestContext.attributes().put(REQUEST_START_TIME_KEY, Instant.now());
         // 从监控上下文中获取信息
         MonitorContext context = MonitorContextHolder.getContext();
-        String userId = context.getUserId();
-        String appId = context.getAppId();
-        requestContext.attributes().put(MONITOR_CONTEXT_KEY, context);
+        String userId = "unknown";
+        String appId = "unknown";
+        if (context != null) {
+            userId = context.getUserId();
+            appId = context.getAppId();
+            requestContext.attributes().put(MONITOR_CONTEXT_KEY, context);
+        } else {
+            log.warn("MonitorContext is null in onRequest, using default values");
+        }
         // 获取模型名称
         String modelName = requestContext.chatRequest().modelName();
         // 记录请求指标
@@ -46,8 +52,14 @@ public class AiModelMonitorListener implements ChatModelListener {
         Map<Object, Object> attributes = responseContext.attributes();
         // 从监控上下文中获取信息
         MonitorContext context = (MonitorContext) attributes.get(MONITOR_CONTEXT_KEY);
-        String userId = context.getUserId();
-        String appId = context.getAppId();
+        String userId = "unknown";
+        String appId = "unknown";
+        if (context != null) {
+            userId = context.getUserId();
+            appId = context.getAppId();
+        } else {
+            log.warn("MonitorContext is null in onResponse, using default values");
+        }
         // 获取模型名称
         String modelName = responseContext.chatResponse().modelName();
         // 记录成功请求
@@ -62,11 +74,17 @@ public class AiModelMonitorListener implements ChatModelListener {
     public void onError(ChatModelErrorContext errorContext) {
         // 从监控上下文中获取信息
         MonitorContext context = MonitorContextHolder.getContext();
-        String userId = context.getUserId();
-        String appId = context.getAppId();
+        String userId = "unknown";
+        String appId = "unknown";
+        if (context != null) {
+            userId = context.getUserId();
+            appId = context.getAppId();
+        } else {
+            log.warn("MonitorContext is null in onError, using default values");
+        }
         // 获取模型名称和错误类型
         String modelName = errorContext.chatRequest().modelName();
-        String errorMessage = errorContext.error().getMessage();
+        String errorMessage = errorContext.error() != null ? errorContext.error().getMessage() : "Unknown error";
         // 记录失败请求
         aiModelMetricsCollector.recordRequest(userId, appId, modelName, "error");
         aiModelMetricsCollector.recordError(userId, appId, modelName, errorMessage);
@@ -80,20 +98,35 @@ public class AiModelMonitorListener implements ChatModelListener {
      * 记录响应时间
      */
     private void recordResponseTime(Map<Object, Object> attributes, String userId, String appId, String modelName) {
-        Instant startTime = (Instant) attributes.get(REQUEST_START_TIME_KEY);
-        Duration responseTime = Duration.between(startTime, Instant.now());
-        aiModelMetricsCollector.recordResponseTime(userId, appId, modelName, responseTime);
+        try {
+            Instant startTime = (Instant) attributes.get(REQUEST_START_TIME_KEY);
+            if (startTime != null) {
+                Duration responseTime = Duration.between(startTime, Instant.now());
+                aiModelMetricsCollector.recordResponseTime(userId, appId, modelName, responseTime);
+            } else {
+                log.warn("Start time not found in attributes for response time recording");
+            }
+        } catch (Exception e) {
+            log.warn("Failed to record response time: {}", e.getMessage());
+        }
     }
 
     /**
      * 记录Token使用情况
      */
     private void recordTokenUsage(ChatModelResponseContext responseContext, String userId, String appId, String modelName) {
-        TokenUsage tokenUsage = responseContext.chatResponse().metadata().tokenUsage();
-        if (tokenUsage != null) {
-            aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "input", tokenUsage.inputTokenCount());
-            aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "output", tokenUsage.outputTokenCount());
-            aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "total", tokenUsage.totalTokenCount());
+        try {
+            if (responseContext.chatResponse() != null && 
+                responseContext.chatResponse().metadata() != null) {
+                TokenUsage tokenUsage = responseContext.chatResponse().metadata().tokenUsage();
+                if (tokenUsage != null) {
+                    aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "input", tokenUsage.inputTokenCount());
+                    aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "output", tokenUsage.outputTokenCount());
+                    aiModelMetricsCollector.recordTokenUsage(userId, appId, modelName, "total", tokenUsage.totalTokenCount());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to record token usage: {}", e.getMessage());
         }
     }
 }
