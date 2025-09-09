@@ -6,7 +6,7 @@
         <RouterLink to="/">
           <div class="header-left">
             <img class="logo" src="@/assets/logo.png" alt="Logo" />
-            <h1 class="site-title">鱼皮应用生成</h1>
+            <h1 class="site-title">Carpe Diem AI</h1>
           </div>
         </RouterLink>
       </a-col>
@@ -57,7 +57,7 @@ import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { userLogout } from '@/api/userController.ts'
-import { LogoutOutlined, HomeOutlined, UserOutlined, GithubOutlined } from '@ant-design/icons-vue'
+import { LogoutOutlined, HomeOutlined, UserOutlined, GithubOutlined, TeamOutlined, AppstoreOutlined } from '@ant-design/icons-vue'
 import defaultAvatar from '@/assets/images/default-avatar.jpg'
 
 const loginUserStore = useLoginUserStore()
@@ -79,19 +79,21 @@ const originItems = [
   },
   {
     key: '/admin/userManage',
+    icon: () => h(TeamOutlined),
     label: '用户管理',
     title: '用户管理',
   },
   {
     key: '/admin/appManage',
+    icon: () => h(AppstoreOutlined),
     label: '应用管理',
     title: '应用管理',
   },
   {
     key: 'github',
     icon: () => h(GithubOutlined),
-    label: h('a', { href: 'https://github.com/CarpeWu', target: '_blank' }, 'GitHub'),
-    title: 'GitHub',
+    label: h('a', { href: 'https://github.com/CarpeWu', target: '_blank' }, '项目地址'),
+    title: '项目地址',
   },
 ]
 
@@ -144,8 +146,10 @@ const doLogout = async () => {
 
 <style scoped>
 .header {
-  background: #fff;
-  padding: 0 24px;
+  background: #ffffff;
+  padding: 0 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .header-left {
@@ -155,17 +159,35 @@ const doLogout = async () => {
 }
 
 .logo {
-  height: 48px;
-  width: 48px;
+  height: 40px;
+  width: 40px;
 }
 
 .site-title {
   margin: 0;
   font-size: 18px;
-  color: #1890ff;
+  color: #1a1a1a;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .ant-menu-horizontal {
   border-bottom: none !important;
+  background: transparent;
+}
+
+.ant-menu-horizontal .ant-menu-item {
+  font-weight: 500;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.ant-menu-horizontal .ant-menu-item:hover {
+  color: #1a1a1a;
+}
+
+.ant-menu-horizontal .ant-menu-item-selected {
+  color: #1a1a1a;
+  font-weight: 600;
 }
 </style>

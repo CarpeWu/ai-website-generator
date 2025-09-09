@@ -2,6 +2,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { SendOutlined } from '@ant-design/icons-vue'
 import { useLoginUserStore } from '@/stores/loginUser'
 import { addApp, listMyAppVoByPage, listGoodAppVoByPage } from '@/api/appController'
 import { getDeployUrl } from '@/config/env'
@@ -159,26 +160,29 @@ onMounted(() => {
 <template>
   <div id="homePage">
     <div class="container">
-      <!-- 网站标题和描述 -->
+      <!-- 简约英雄区域 -->
       <div class="hero-section">
-        <h1 class="hero-title">AI 应用生成平台</h1>
-        <p class="hero-description">一句话轻松创建网站应用</p>
+        <div class="hero-content">
+          <h1 class="hero-title">言语创造，即刻生成</h1>
+          <p class="hero-subtitle">AI 赋能，一句话生成专业网站</p>
+        </div>
       </div>
 
-      <!-- 用户提示词输入框 -->
-      <div class="input-section">
+      <!-- 优化后的输入区域 -->
+      <div class="input-section featured-input">
         <a-textarea
           v-model:value="userPrompt"
-          placeholder="帮我创建个人博客网站"
-          :rows="4"
+          placeholder="描述你想要的网站，例如：创建一个企业官网，包含产品展示、关于我们和联系方式页面..."
+          :rows="5"
           :maxlength="1000"
           class="prompt-input"
         />
         <div class="input-actions">
-          <a-button type="primary" size="large" @click="createApp" :loading="creating">
+          <a-button type="primary" size="large" @click="createApp" :loading="creating" class="create-btn">
             <template #icon>
-              <span>↑</span>
+              <SendOutlined />
             </template>
+            立即生成
           </a-button>
         </div>
       </div>
@@ -223,52 +227,62 @@ onMounted(() => {
         >
       </div>
 
-      <!-- 我的作品 -->
-      <div class="section">
-        <h2 class="section-title">我的作品</h2>
-        <div class="app-grid">
-          <AppCard
-            v-for="app in myApps"
-            :key="app.id"
-            :app="app"
-            @view-chat="viewChat"
-            @view-work="viewWork"
-          />
-        </div>
-        <div class="pagination-wrapper">
-          <a-pagination
-            v-model:current="myAppsPage.current"
-            v-model:page-size="myAppsPage.pageSize"
-            :total="myAppsPage.total"
-            :show-size-changer="false"
-            :show-total="(total: number) => `共 ${total} 个应用`"
-            @change="loadMyApps"
-          />
+      <!-- 我的作品 - 精致容器设计 -->
+      <div class="works-container">
+        <div class="container-inner">
+          <div class="section-header">
+            <h2 class="section-title">我的作品</h2>
+            <p class="section-description">探索你创建的精彩应用，每一个都是创意的结晶</p>
+          </div>
+          <div class="works-grid">
+            <AppCard
+              v-for="app in myApps"
+              :key="app.id"
+              :app="app"
+              @view-chat="viewChat"
+              @view-work="viewWork"
+            />
+          </div>
+          <div class="pagination-wrapper">
+            <a-pagination
+              v-model:current="myAppsPage.current"
+              v-model:page-size="myAppsPage.pageSize"
+              :total="myAppsPage.total"
+              :show-size-changer="false"
+              :show-total="(total: number) => `共 ${total} 个作品`"
+              @change="loadMyApps"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- 精选案例 -->
-      <div class="section">
-        <h2 class="section-title">精选案例</h2>
-        <div class="featured-grid">
-          <AppCard
-            v-for="app in featuredApps"
-            :key="app.id"
-            :app="app"
-            :featured="true"
-            @view-chat="viewChat"
-            @view-work="viewWork"
-          />
-        </div>
-        <div class="pagination-wrapper">
-          <a-pagination
-            v-model:current="featuredAppsPage.current"
-            v-model:page-size="featuredAppsPage.pageSize"
-            :total="featuredAppsPage.total"
-            :show-size-changer="false"
-            :show-total="(total: number) => `共 ${total} 个案例`"
-            @change="loadFeaturedApps"
-          />
+      <!-- 精选推荐 - 精致容器设计 -->
+      <div class="featured-container">
+        <div class="container-inner">
+          <div class="section-header">
+            <h2 class="section-title">精选推荐</h2>
+            <p class="section-description">发现社区中的优秀作品，获取创作灵感</p>
+          </div>
+          <div class="featured-grid">
+            <AppCard
+              v-for="app in featuredApps"
+              :key="app.id"
+              :app="app"
+              :featured="true"
+              @view-chat="viewChat"
+              @view-work="viewWork"
+            />
+          </div>
+          <div class="pagination-wrapper">
+            <a-pagination
+              v-model:current="featuredAppsPage.current"
+              v-model:page-size="featuredAppsPage.pageSize"
+              :total="featuredAppsPage.total"
+              :show-size-changer="false"
+              :show-total="(total: number) => `共 ${total} 个案例`"
+              @change="loadFeaturedApps"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -281,16 +295,12 @@ onMounted(() => {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 8%, #e2e8f0 20%, #cbd5e1 100%),
-    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+  background: #fafbfc;
   position: relative;
   overflow: hidden;
 }
 
-/* 科技感网格背景 */
+/* 精致的背景纹理 */
 #homePage::before {
   content: '';
   position: absolute;
@@ -298,21 +308,26 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image:
-    linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
-  background-size:
-    100px 100px,
-    100px 100px,
-    20px 20px,
-    20px 20px;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(102, 126, 234, 0.04) 1px, transparent 0),
+    radial-gradient(circle at 50px 50px, rgba(118, 75, 162, 0.02) 1px, transparent 0);
+  background-size: 40px 40px, 80px 80px;
   pointer-events: none;
-  animation: gridFloat 20s ease-in-out infinite;
+  animation: backgroundFloat 20s ease-in-out infinite;
 }
 
-/* 动态光效 */
+@keyframes backgroundFloat {
+  0%, 100% { 
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  50% { 
+    transform: translate(10px, -10px) rotate(1deg);
+    opacity: 0.8;
+  }
+}
+
+/* 优雅的微光效果 */
 #homePage::after {
   content: '';
   position: absolute;
@@ -320,36 +335,20 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background:
+  background: 
     radial-gradient(
       600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(59, 130, 246, 0.08) 0%,
-      rgba(139, 92, 246, 0.06) 40%,
-      transparent 80%
-    ),
-    linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.04) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, rgba(139, 92, 246, 0.04) 50%, transparent 70%);
+      rgba(102, 126, 234, 0.03) 0%,
+      rgba(118, 75, 162, 0.02) 40%,
+      transparent 70%
+    );
   pointer-events: none;
-  animation: lightPulse 8s ease-in-out infinite alternate;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
 }
 
-@keyframes gridFloat {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(5px, 5px);
-  }
-}
-
-@keyframes lightPulse {
-  0% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0.7;
-  }
+#homePage:hover::after {
+  opacity: 1;
 }
 
 .container {
@@ -364,111 +363,164 @@ onMounted(() => {
 
 /* 移除居中光束效果 */
 
-/* 英雄区域 */
+/* 重新设计的英雄区域 */
 .hero-section {
   text-align: center;
-  padding: 80px 0 60px;
-  margin-bottom: 28px;
+  padding: 60px 0 40px;
+  margin-bottom: 40px;
   color: #1e293b;
   position: relative;
-  overflow: hidden;
+  margin: 0 auto;
+  max-width: 900px;
 }
 
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(ellipse 800px 400px at center, rgba(59, 130, 246, 0.12) 0%, transparent 70%),
-    linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.05) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, rgba(16, 185, 129, 0.04) 50%, transparent 70%);
-  animation: heroGlow 10s ease-in-out infinite alternate;
-}
-
-@keyframes heroGlow {
-  0% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-@keyframes rotate {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  padding: 0 20px;
 }
 
 .hero-title {
-  font-size: 56px;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 600;
   margin: 0 0 20px;
-  line-height: 1.2;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -1px;
-  position: relative;
-  z-index: 2;
-  animation: titleShimmer 3s ease-in-out infinite;
+  line-height: 1.1;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
-@keyframes titleShimmer {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+
+
+.hero-subtitle {
+  font-size: 18px;
+  margin: 0 0 40px;
+  color: #475569;
+  font-weight: 400;
+  line-height: 1.5;
+  opacity: 0.9;
 }
 
-.hero-description {
-  font-size: 20px;
-  margin: 0;
-  opacity: 0.8;
-  color: #64748b;
+
+
+/* 优化后的输入区域 */
+.featured-input {
+  margin: 0 auto 60px;
+  max-width: 800px;
   position: relative;
-  z-index: 2;
+  z-index: 10;
+}
+
+.featured-input .prompt-input {
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  font-size: 18px;
+  padding: 24px;
+  background: #ffffff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 140px;
+}
+
+.featured-input .prompt-input:focus {
+  border-color: #64748b;
+  box-shadow: 0 12px 40px rgba(100, 116, 139, 0.15);
+  transform: translateY(-2px);
+}
+
+.featured-input .prompt-input:hover {
+  border-color: #d1d5db;
+}
+
+/* 优化按钮样式 */
+.create-btn {
+  border-radius: 10px;
+  padding: 0 24px;
+  height: 42px;
+  font-weight: 600;
+  font-size: 14px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.create-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+}
+
+.create-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(30, 64, 175, 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 0 30px;
+    margin-bottom: 30px;
+  }
+  
+  .hero-title {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+  
+  .hero-subtitle {
+    font-size: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .hero-section::before {
+    width: 180px;
+    height: 180px;
+    opacity: 0.1;
+  }
+  
+  .create-btn {
+    height: 38px;
+    padding: 0 20px;
+    font-size: 13px;
+  }
 }
 
 /* 输入区域 */
 .input-section {
   position: relative;
-  margin: 0 auto 24px;
+  margin: 0 auto 40px;
   max-width: 800px;
 }
 
 .prompt-input {
-  border-radius: 16px;
-  border: none;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
   font-size: 16px;
-  padding: 20px 60px 20px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  padding: 20px 24px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .prompt-input:focus {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+  border-color: #64748b;
+  box-shadow: 0 4px 25px rgba(100, 116, 139, 0.15);
   transform: translateY(-2px);
+}
+
+.prompt-input:hover {
+  border-color: #e0e0e0;
 }
 
 .input-actions {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  bottom: 16px;
+  right: 16px;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -477,74 +529,94 @@ onMounted(() => {
 /* 快捷按钮 */
 .quick-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   justify-content: center;
   margin-bottom: 60px;
   flex-wrap: wrap;
 }
 
 .quick-actions .ant-btn {
-  border-radius: 25px;
-  padding: 8px 20px;
+  border-radius: 8px;
+  padding: 12px 24px;
   height: auto;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  color: #475569;
-  backdrop-filter: blur(15px);
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-
-.quick-actions .ant-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-  transition: left 0.5s;
-}
-
-.quick-actions .ant-btn:hover::before {
-  left: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .quick-actions .ant-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #3b82f6;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #111827;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 区域标题 */
-.section {
-  margin-bottom: 60px;
+/* 精致容器设计 */
+.works-container,
+.featured-container {
+  background: #ffffff;
+  border-radius: 24px;
+  margin: 60px 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  border: 1px solid #3b82f6;
+  overflow: hidden;
+  position: relative;
+}
+
+.works-container::before,
+.featured-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%);
+}
+
+.container-inner {
+  padding: 48px 40px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 48px;
 }
 
 .section-title {
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 32px;
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 12px;
   color: #1e293b;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.section-description {
+  font-size: 18px;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* 我的作品网格 */
-.app-grid {
+.works-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: 32px;
+  margin-bottom: 40px;
 }
 
 /* 精选案例网格 */
 .featured-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: 32px;
+  margin-bottom: 40px;
 }
 
 /* 分页 */
@@ -555,22 +627,156 @@ onMounted(() => {
 }
 
 /* 响应式设计 */
+@media (max-width: 1024px) {
+  .container {
+    padding: 16px;
+  }
+
+  .hero-section {
+    border-radius: 24px;
+    margin: 0 16px 20px;
+  }
+
+  .hero-content {
+    padding: 0 24px;
+  }
+
+  .works-grid,
+  .featured-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 24px;
+  }
+}
+
 @media (max-width: 768px) {
+  .hero-section {
+    padding: 60px 0 30px;
+    border-radius: 20px;
+    margin: 0 8px 20px;
+  }
+
+  .hero-content {
+    padding: 0 20px;
+  }
+
   .hero-title {
-    font-size: 32px;
+    font-size: 28px;
+    margin: 0 0 12px;
   }
 
-  .hero-description {
-    font-size: 16px;
+  .hero-subtitle {
+    font-size: 15px;
+    margin: 0 0 32px;
   }
 
-  .app-grid,
+  .works-grid,
   .featured-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .quick-actions {
     justify-content: center;
+    gap: 12px;
+  }
+
+  .quick-actions .ant-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .container-inner {
+    padding: 32px 20px;
+  }
+
+  .works-container,
+  .featured-container {
+    margin: 32px 0;
+    border-radius: 16px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .section-description {
+    font-size: 16px;
+  }
+
+  .featured-input {
+    margin: 0 auto 40px;
+  }
+
+  .featured-input .prompt-input {
+    padding: 16px;
+    font-size: 15px;
+  }
+
+  .create-btn {
+    height: 38px;
+    padding: 0 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+
+  .hero-section {
+    padding: 40px 0 24px;
+    border-radius: 16px;
+    margin: 0 4px 16px;
+  }
+
+  .hero-content {
+    padding: 0 16px;
+  }
+
+  .hero-title {
+    font-size: 24px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+    margin: 0 0 24px;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .quick-actions .ant-btn {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .container-inner {
+    padding: 24px 16px;
+  }
+
+  .works-container,
+  .featured-container {
+    margin: 24px 0;
+    border-radius: 12px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .section-description {
+    font-size: 15px;
+  }
+
+  .featured-input .prompt-input {
+    padding: 14px;
+    border-radius: 12px;
   }
 }
 </style>
