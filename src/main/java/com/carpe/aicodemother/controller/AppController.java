@@ -41,7 +41,7 @@ import java.util.Map;
 /**
  * 应用 控制层。
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+
  */
 @RestController
 @RequestMapping("/app")

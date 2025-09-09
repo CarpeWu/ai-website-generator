@@ -60,7 +60,7 @@ public class SimpleStatefulWorkflowApp {
 
         // 初始化 WorkflowContext - 只设置基本信息
         WorkflowContext initialContext = WorkflowContext.builder()
-                .originalPrompt("创建一个鱼皮的个人博客网站")
+                .originalPrompt("创建一个个人博客网站")
                 .currentStep("初始化")
                 .build();
 

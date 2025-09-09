@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * 对话历史 控制层。
  *
- * @author jaeger
+
  */
 @RestController
 @RequestMapping("/chatHistory")

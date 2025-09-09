@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 /**
  * 应用 实体类。
  *
- * @author jaeger
+
  */
 @Data
 @Builder

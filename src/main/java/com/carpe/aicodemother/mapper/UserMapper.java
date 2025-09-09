@@ -6,7 +6,7 @@ import com.carpe.aicodemother.model.entity.User;
 /**
  * 用户 映射层。
  *
- * @author jaeger
+
  */
 public interface UserMapper extends BaseMapper<User> {
 

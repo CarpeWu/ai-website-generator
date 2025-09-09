@@ -28,7 +28,7 @@ import static com.carpe.aicodemother.constant.UserConstant.USER_LOGIN_STATE;
 /**
  * 用户 服务层实现。
  *
- * @author jaeger
+
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>  implements UserService {

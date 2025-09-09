@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 /**
  * 对话历史 服务层。
  *
- * @author jaeger
+
  */
 public interface ChatHistoryService extends IService<ChatHistory> {
 
