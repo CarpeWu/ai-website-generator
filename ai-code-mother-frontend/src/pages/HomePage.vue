@@ -132,6 +132,14 @@ const viewChat = (appId: string | number | undefined) => {
   }
 }
 
+// 处理键盘事件
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault() // 阻止默认换行行为
+    createApp()
+  }
+}
+
 // 查看作品
 const viewWork = (app: API.AppVO) => {
   if (app.deployKey) {
@@ -186,6 +194,7 @@ onMounted(() => {
           :rows="5"
           :maxlength="1000"
           class="prompt-input"
+          @keydown="handleKeydown"
         />
         <div class="input-actions">
           <a-button
