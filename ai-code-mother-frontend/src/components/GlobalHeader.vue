@@ -57,7 +57,14 @@ import { useRouter } from 'vue-router'
 import { type MenuProps, message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/loginUser.ts'
 import { userLogout } from '@/api/userController.ts'
-import { LogoutOutlined, HomeOutlined, UserOutlined, GithubOutlined, TeamOutlined, AppstoreOutlined } from '@ant-design/icons-vue'
+import {
+  LogoutOutlined,
+  HomeOutlined,
+  UserOutlined,
+  GithubOutlined,
+  TeamOutlined,
+  AppstoreOutlined,
+} from '@ant-design/icons-vue'
 import defaultAvatar from '@/assets/images/default-avatar.jpg'
 
 const loginUserStore = useLoginUserStore()
@@ -168,7 +175,12 @@ const doLogout = async () => {
   font-size: 18px;
   color: #1a1a1a;
   font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 }
 
 .ant-menu-horizontal {

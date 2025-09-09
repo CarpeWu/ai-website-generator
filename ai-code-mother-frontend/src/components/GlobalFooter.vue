@@ -2,7 +2,7 @@
   <a-layout-footer class="footer">
     <div class="footer-content">
       <div class="footer-image">
-        <img :src="footerImage" alt="Footer decoration" class="footer-img">
+        <img :src="footerImage" alt="Footer decoration" class="footer-img" />
       </div>
       <p class="copyright">
         <a
@@ -11,7 +11,7 @@
           rel="noopener noreferrer"
           class="author-link"
         >
-designed by Carpe Wu
+          designed by Carpe Wu
         </a>
       </p>
     </div>
@@ -46,13 +46,17 @@ import footerImage from '@/assets/footer-image.png'
 .footer-img:hover {
   opacity: 0.9;
   transform: scale(1.02);
-
 }
 
 .copyright {
   margin: 0;
   color: #6b7280;
   font-size: 14px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 }
 </style>

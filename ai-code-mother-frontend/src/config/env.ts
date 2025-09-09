@@ -1,7 +1,8 @@
 /**
  * 环境变量配置
+ * 管理应用的各种URL配置和环境变量
  */
-import {CodeGenTypeEnum} from "@/utils/codeGenTypes.ts";
+import { CodeGenTypeEnum } from '@/utils/codeGenTypes.ts'
 
 // 应用部署域名
 export const DEPLOY_DOMAIN = import.meta.env.VITE_DEPLOY_DOMAIN || 'http://localhost'
@@ -12,12 +13,21 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 // 静态资源地址
 export const STATIC_BASE_URL = `${API_BASE_URL}/static`
 
-// 获取部署应用的完整URL
+/**
+ * 获取部署应用的完整URL
+ * @param deployKey 部署密钥
+ * @returns 完整的部署URL
+ */
 export const getDeployUrl = (deployKey: string) => {
   return `${DEPLOY_DOMAIN}/${deployKey}`
 }
 
-// 获取静态资源预览URL
+/**
+ * 获取静态资源预览URL
+ * @param codeGenType 代码生成类型
+ * @param appId 应用ID
+ * @returns 预览URL
+ */
 export const getStaticPreviewUrl = (codeGenType: string, appId: string) => {
   const baseUrl = `${STATIC_BASE_URL}/${codeGenType}_${appId}/`
   // 如果是 Vue 项目，浏览地址需要添加 dist 后缀

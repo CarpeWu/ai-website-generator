@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * AI代码生成器 - 首页
+ * 功能：应用创建入口、我的应用展示、精选应用推荐
+ */
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
@@ -38,7 +42,9 @@ const setPrompt = (prompt: string) => {
 
 // 优化提示词功能已移除
 
-// 创建应用
+/**
+ * 创建新应用并跳转到对话页面
+ */
 const createApp = async () => {
   if (!userPrompt.value.trim()) {
     message.warning('请输入应用描述')
@@ -73,7 +79,9 @@ const createApp = async () => {
   }
 }
 
-// 加载我的应用
+/**
+ * 加载当前用户的应用列表
+ */
 const loadMyApps = async () => {
   if (!loginUserStore.loginUser.id) {
     return
@@ -96,7 +104,9 @@ const loadMyApps = async () => {
   }
 }
 
-// 加载精选应用
+/**
+ * 加载精选应用列表
+ */
 const loadFeaturedApps = async () => {
   try {
     const res = await listGoodAppVoByPage({
@@ -178,7 +188,13 @@ onMounted(() => {
           class="prompt-input"
         />
         <div class="input-actions">
-          <a-button type="primary" size="large" @click="createApp" :loading="creating" class="create-btn">
+          <a-button
+            type="primary"
+            size="large"
+            @click="createApp"
+            :loading="creating"
+            class="create-btn"
+          >
             <template #icon>
               <SendOutlined />
             </template>
@@ -205,7 +221,7 @@ onMounted(() => {
               '设计一个专业的企业官网，包含公司介绍、产品服务展示、新闻资讯、联系我们等页面。采用商务风格的设计，包含轮播图、产品展示卡片、团队介绍、客户案例展示，支持多语言切换和在线客服功能。',
             )
           "
-        >企业官网</a-button
+          >企业官网</a-button
         >
         <a-button
           type="default"
@@ -214,7 +230,7 @@ onMounted(() => {
               '构建一个功能完整的在线商城，包含商品展示、购物车、用户注册登录、订单管理、支付结算等功能。设计现代化的商品卡片布局，支持商品搜索筛选、用户评价、优惠券系统和会员积分功能。',
             )
           "
-        >在线商城</a-button
+          >在线商城</a-button
         >
         <a-button
           type="default"
@@ -223,7 +239,7 @@ onMounted(() => {
               '制作一个精美的作品展示网站，适合设计师、摄影师、艺术家等创作者。包含作品画廊、项目详情页、个人简历、联系方式等模块。采用瀑布流或网格布局展示作品，支持图片放大预览和作品分类筛选。',
             )
           "
-        >作品展示网站</a-button
+          >作品展示网站</a-button
         >
       </div>
 
@@ -308,20 +324,23 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 2px 2px, rgba(102, 126, 234, 0.04) 1px, transparent 0),
     radial-gradient(circle at 50px 50px, rgba(118, 75, 162, 0.02) 1px, transparent 0);
-  background-size: 40px 40px, 80px 80px;
+  background-size:
+    40px 40px,
+    80px 80px;
   pointer-events: none;
   animation: backgroundFloat 20s ease-in-out infinite;
 }
 
 @keyframes backgroundFloat {
-  0%, 100% { 
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
     opacity: 1;
   }
-  50% { 
+  50% {
     transform: translate(10px, -10px) rotate(1deg);
     opacity: 0.8;
   }
@@ -335,13 +354,12 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(
-      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(102, 126, 234, 0.03) 0%,
-      rgba(118, 75, 162, 0.02) 40%,
-      transparent 70%
-    );
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(102, 126, 234, 0.03) 0%,
+    rgba(118, 75, 162, 0.02) 40%,
+    transparent 70%
+  );
   pointer-events: none;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
@@ -391,8 +409,6 @@ onMounted(() => {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
-
-
 .hero-subtitle {
   font-size: 18px;
   margin: 0 0 40px;
@@ -401,8 +417,6 @@ onMounted(() => {
   line-height: 1.5;
   opacity: 0.9;
 }
-
-
 
 /* 优化后的输入区域 */
 .featured-input {
@@ -420,7 +434,12 @@ onMounted(() => {
   background: #ffffff;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   min-height: 140px;
 }
 
@@ -465,23 +484,23 @@ onMounted(() => {
     padding: 40px 0 30px;
     margin-bottom: 30px;
   }
-  
+
   .hero-title {
     font-size: 28px;
     margin-bottom: 16px;
   }
-  
+
   .hero-subtitle {
     font-size: 16px;
     margin-bottom: 32px;
   }
-  
+
   .hero-section::before {
     width: 180px;
     height: 180px;
     opacity: 0.1;
   }
-  
+
   .create-btn {
     height: 38px;
     padding: 0 20px;
@@ -504,7 +523,12 @@ onMounted(() => {
   background: #ffffff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 }
 
 .prompt-input:focus {
@@ -592,7 +616,12 @@ onMounted(() => {
   font-weight: 700;
   margin: 0 0 12px;
   color: #1e293b;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 }
 
 .section-description {

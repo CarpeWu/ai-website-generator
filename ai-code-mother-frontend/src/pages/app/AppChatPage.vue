@@ -210,6 +210,10 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * AI代码生成器 - 应用对话页面
+ * 功能：与AI对话生成网站代码，实时预览生成效果，支持部署和下载
+ */
 import { ref, onMounted, nextTick, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
@@ -217,7 +221,7 @@ import { useLoginUserStore } from '@/stores/loginUser'
 import {
   getAppVoById,
   deployApp as deployAppApi,
-  deleteApp as deleteAppApi
+  deleteApp as deleteAppApi,
 } from '@/api/appController'
 import { listAppChatHistory } from '@/api/chatHistoryController'
 import { CodeGenTypeEnum, formatCodeGenType } from '@/utils/codeGenTypes'
@@ -236,7 +240,7 @@ import {
   ExportOutlined,
   InfoCircleOutlined,
   DownloadOutlined,
-  EditOutlined
+  EditOutlined,
 } from '@ant-design/icons-vue'
 
 const route = useRoute()
@@ -245,9 +249,13 @@ const loginUserStore = useLoginUserStore()
 
 // 应用信息
 const appInfo = ref<API.AppVO>()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const appId = ref<any>()
 
 // 对话相关
+/**
+ * 消息接口定义
+ */
 interface Message {
   type: 'user' | 'ai'
   content: string
@@ -257,7 +265,7 @@ interface Message {
 
 const messages = ref<Message[]>([])
 const userInput = ref('')
-const isGenerating = ref(false)
+const isGenerating = ref(false) // 是否正在生成代码
 const messagesContainer = ref<HTMLElement>()
 
 // 对话历史相关
@@ -284,7 +292,7 @@ const selectedElementInfo = ref<ElementInfo | null>(null)
 const visualEditor = new VisualEditor({
   onElementSelected: (elementInfo: ElementInfo) => {
     selectedElementInfo.value = elementInfo
-  }
+  },
 })
 
 // 权限相关
@@ -304,14 +312,17 @@ const showAppDetail = () => {
   appDetailVisible.value = true
 }
 
-// 加载对话历史
+/**
+ * 加载对话历史记录
+ * @param isLoadMore 是否为加载更多操作
+ */
 const loadChatHistory = async (isLoadMore = false) => {
   if (!appId.value || loadingHistory.value) return
   loadingHistory.value = true
   try {
     const params: API.listAppChatHistoryParams = {
       appId: appId.value,
-      pageSize: 10
+      pageSize: 10,
     }
     // 如果是加载更多，传递最后一条消息的创建时间作为游标
     if (isLoadMore && lastCreateTime.value) {
@@ -326,7 +337,7 @@ const loadChatHistory = async (isLoadMore = false) => {
           .map((chat) => ({
             type: (chat.messageType === 'user' ? 'user' : 'ai') as 'user' | 'ai',
             content: chat.message || '',
-            createTime: chat.createTime
+            createTime: chat.createTime,
           }))
           .reverse() // 反转数组，让老消息在前
         if (isLoadMore) {
@@ -358,7 +369,9 @@ const loadMoreHistory = async () => {
   await loadChatHistory(true)
 }
 
-// 获取应用信息
+/**
+ * 获取应用信息并初始化页面数据
+ */
 const fetchAppInfo = async () => {
   const id = route.params.id as string
   if (!id) {
@@ -406,7 +419,7 @@ const sendInitialMessage = async (prompt: string) => {
   // 添加用户消息
   messages.value.push({
     type: 'user',
-    content: prompt
+    content: prompt,
   })
 
   // 添加AI消息占位符
@@ -414,7 +427,7 @@ const sendInitialMessage = async (prompt: string) => {
   messages.value.push({
     type: 'ai',
     content: '',
-    loading: true
+    loading: true,
   })
 
   await nextTick()
@@ -448,7 +461,7 @@ const sendMessage = async () => {
   // 添加用户消息（包含元素信息）
   messages.value.push({
     type: 'user',
-    content: message
+    content: message,
   })
 
   // 发送消息后，清除选中元素并退出编辑模式
@@ -464,7 +477,7 @@ const sendMessage = async () => {
   messages.value.push({
     type: 'ai',
     content: '',
-    loading: true
+    loading: true,
   })
 
   await nextTick()
@@ -475,7 +488,11 @@ const sendMessage = async () => {
   await generateCode(message, aiMessageIndex)
 }
 
-// 生成代码 - 使用 EventSource 处理流式响应
+/**
+ * 生成代码 - 使用 EventSource 处理流式响应
+ * @param userMessage 用户输入的消息
+ * @param aiMessageIndex AI消息在数组中的索引
+ */
 const generateCode = async (userMessage: string, aiMessageIndex: number) => {
   let eventSource: EventSource | null = null
   let streamCompleted = false
@@ -487,20 +504,20 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
     // 构建URL参数
     const params = new URLSearchParams({
       appId: appId.value || '',
-      message: userMessage
+      message: userMessage,
     })
 
     const url = `${baseURL}/app/chat/gen/code?${params}`
 
     // 创建 EventSource 连接
     eventSource = new EventSource(url, {
-      withCredentials: true
+      withCredentials: true,
     })
 
     let fullContent = ''
 
     // 处理接收到的消息
-    eventSource.onmessage = function(event) {
+    eventSource.onmessage = function (event) {
       if (streamCompleted) return
 
       try {
@@ -522,7 +539,7 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
     }
 
     // 处理done事件
-    eventSource.addEventListener('done', function() {
+    eventSource.addEventListener('done', function () {
       if (streamCompleted) return
 
       streamCompleted = true
@@ -536,8 +553,8 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
       }, 1000)
     })
 
-// 处理business-error事件（后端限流等错误）
-    eventSource.addEventListener('business-error', function(event: MessageEvent) {
+    // 处理business-error事件（后端限流等错误）
+    eventSource.addEventListener('business-error', function (event: MessageEvent) {
       if (streamCompleted) return
 
       try {
@@ -560,7 +577,7 @@ const generateCode = async (userMessage: string, aiMessageIndex: number) => {
     })
 
     // 处理错误
-    eventSource.onerror = function() {
+    eventSource.onerror = function () {
       if (streamCompleted || !isGenerating.value) return
       // 检查是否是正常的连接关闭
       if (eventSource?.readyState === EventSource.CONNECTING) {
@@ -608,7 +625,9 @@ const scrollToBottom = () => {
   }
 }
 
-// 下载代码
+/**
+ * 下载生成的代码文件
+ */
 const downloadCode = async () => {
   if (!appId.value) {
     message.error('应用ID不存在')
@@ -620,7 +639,7 @@ const downloadCode = async () => {
     const url = `${API_BASE_URL}/app/download/${appId.value}`
     const response = await fetch(url, {
       method: 'GET',
-      credentials: 'include'
+      credentials: 'include',
     })
     if (!response.ok) {
       throw new Error(`下载失败: ${response.status}`)
@@ -646,7 +665,9 @@ const downloadCode = async () => {
   }
 }
 
-// 部署应用
+/**
+ * 部署应用到云端
+ */
 const deployApp = async () => {
   if (!appId.value) {
     message.error('应用ID不存在')
@@ -656,7 +677,7 @@ const deployApp = async () => {
   deploying.value = true
   try {
     const res = await deployAppApi({
-      appId: appId.value as unknown as number
+      appId: appId.value as unknown as number,
     })
 
     if (res.data.code === 0 && res.data.data) {
