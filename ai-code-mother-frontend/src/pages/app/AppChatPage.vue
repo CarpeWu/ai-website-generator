@@ -16,6 +16,7 @@
           应用详情
         </a-button>
         <a-button
+          v-if="!viewOnly"
           type="primary"
           ghost
           @click="downloadCode"
@@ -27,7 +28,13 @@
           </template>
           下载代码
         </a-button>
-        <a-button type="primary" @click="deployApp" :loading="deploying">
+        <a-button 
+          v-if="!viewOnly" 
+          type="primary" 
+          @click="deployApp" 
+          :loading="deploying"
+          :disabled="!isOwner"
+        >
           <template #icon>
             <CloudUploadOutlined />
           </template>
@@ -109,7 +116,7 @@
         </a-alert>
 
         <!-- 用户消息输入框 -->
-        <div class="input-container">
+        <div v-if="!viewOnly" class="input-container">
           <div class="input-wrapper">
             <a-tooltip v-if="!isOwner" title="无法在别人的作品下对话哦~" placement="top">
               <a-textarea
@@ -151,7 +158,7 @@
           <h3>生成后的网页展示</h3>
           <div class="preview-actions">
             <a-button
-              v-if="isOwner && previewUrl"
+              v-if="isOwner && previewUrl && !viewOnly"
               type="link"
               :danger="isEditMode"
               @click="toggleEditMode"
@@ -285,6 +292,11 @@ const deployUrl = ref('')
 
 // 下载相关
 const downloading = ref(false)
+
+// 查看模式相关
+const viewOnly = computed(() => {
+  return route.query.view === '1'
+})
 
 // 可视化编辑相关
 const isEditMode = ref(false)

@@ -2,7 +2,9 @@ package com.carpe.aicodemother.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.carpe.aicodemother.constant.AppConstant;
 import com.carpe.aicodemother.constant.UserConstant;
+import com.carpe.aicodemother.exception.BusinessException;
 import com.carpe.aicodemother.exception.ErrorCode;
 import com.carpe.aicodemother.exception.ThrowUtils;
 import com.carpe.aicodemother.model.dto.chathistory.ChatHistoryQueryRequest;
@@ -176,19 +178,35 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID不能为空");
         ThrowUtils.throwIf(pageSize <= 0 || pageSize > 50, ErrorCode.PARAMS_ERROR, "页面大小必须在1-50之间");
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
-        // 验证权限：只有应用创建者和管理员可以查看
+        // 验证权限
         App app = appService.getById(appId);
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR, "应用不存在");
+        
+        // 如果是精选应用，所有登录用户都可以查看（与管理员权限相同）
         boolean isAdmin = UserConstant.ADMIN_ROLE.equals(loginUser.getUserRole());
         boolean isCreator = app.getUserId().equals(loginUser.getId());
-        ThrowUtils.throwIf(!isAdmin && !isCreator, ErrorCode.NO_AUTH_ERROR, "无权查看该应用的对话历史");
-        // 构建查询条件
-        ChatHistoryQueryRequest queryRequest = new ChatHistoryQueryRequest();
-        queryRequest.setAppId(appId);
-        queryRequest.setLastCreateTime(lastCreateTime);
-        QueryWrapper queryWrapper = this.getQueryWrapper(queryRequest);
-        // 查询数据
-        return this.page(Page.of(1, pageSize), queryWrapper);
+        boolean isFeaturedApp = AppConstant.GOOD_APP_PRIORITY.equals(app.getPriority());
+        
+        // 添加调试日志
+        log.info("查看对话历史权限检查 - appId: {}, userId: {}, isAdmin: {}, isCreator: {}, isFeaturedApp: {}, appPriority: {}", 
+                appId, loginUser.getId(), isAdmin, isCreator, isFeaturedApp, app.getPriority());
+        
+        // 权限检查：管理员、应用创建者、或者精选应用的查看者都可以查看对话历史
+        if (isAdmin || isCreator || isFeaturedApp) {
+            // 构建查询条件
+            ChatHistoryQueryRequest queryRequest = new ChatHistoryQueryRequest();
+            queryRequest.setAppId(appId);
+            queryRequest.setLastCreateTime(lastCreateTime);
+            QueryWrapper queryWrapper = this.getQueryWrapper(queryRequest);
+            // 查询数据
+            Page<ChatHistory> result = this.page(Page.of(1, pageSize), queryWrapper);
+            log.info("成功查询到对话历史 - appId: {}, 记录数: {}", appId, result.getRecords().size());
+            return result;
+        } else {
+            log.warn("权限检查失败 - appId: {}, userId: {}, 用户角色: {}, 应用创建者: {}, 应用优先级: {}", 
+                     appId, loginUser.getId(), loginUser.getUserRole(), app.getUserId(), app.getPriority());
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "无权查看该应用的对话历史");
+        }
     }
 
 
