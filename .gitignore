@@ -34,3 +34,5 @@ build/
 
 ### VS Code ###
 .vscode/
+/DEPLOYMENT_GUIDE_1PANEL_OPENRESTY.md
+/QUICK_START_1PANEL.md
