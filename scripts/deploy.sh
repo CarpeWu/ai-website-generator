@@ -58,14 +58,24 @@ fi
 cat > $APP_DIR/start.sh << 'EOF'
 #!/bin/bash
 
-# 加载环境变量
-source /opt/ai-code-mother/config/.env
+# 切换到应用目录
+cd /opt/ai-code-mother
+
+# 检查并加载环境变量文件
+if [ -f "config/.env" ]; then
+    echo "加载环境变量文件: config/.env"
+    set -a  # 自动导出所有变量
+    source config/.env
+    set +a  # 关闭自动导出
+else
+    echo "警告: 未找到config/.env文件，使用默认配置"
+fi
 
 # 设置Java选项
 export JAVA_OPTS="-Xmx2g -Xms1g -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}"
 
 # 启动应用
-cd /opt/ai-code-mother
+echo "启动AI Code Mother应用..."
 java $JAVA_OPTS -jar ai-code-mother.jar
 EOF
 

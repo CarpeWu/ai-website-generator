@@ -77,7 +77,22 @@ fi
 echo "创建启动脚本..."
 cat > "$START_SCRIPT" << 'EOF'
 #!/bin/bash
+
+# 切换到应用目录
 cd "/opt/1panel/apps/openresty/openresty/www/sites/ai-code-mother"
+
+# 检查并加载.env文件
+if [ -f ".env" ]; then
+    echo "加载环境变量文件: .env"
+    set -a  # 自动导出所有变量
+    source .env
+    set +a  # 关闭自动导出
+else
+    echo "警告: 未找到.env文件，使用默认配置"
+fi
+
+# 启动应用
+echo "启动AI Code Mother应用..."
 java -jar ai-code-mother-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 EOF
 

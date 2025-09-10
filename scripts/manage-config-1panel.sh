@@ -87,15 +87,38 @@ restart_app() {
     
     # 确保进程已停止
     if pgrep -f "ai-code-mother" > /dev/null; then
+        echo -e "${YELLOW}强制停止残留进程...${NC}"
         pkill -9 -f "ai-code-mother"
+        sleep 1
     fi
     
-    # 启动新应用（使用prod环境）
+    # 切换到应用目录
     cd "/opt/1panel/apps/openresty/openresty/www/sites/ai-code-mother"
+    
+    # 检查start.sh脚本是否存在
+    if [ ! -f "./start.sh" ]; then
+        echo -e "${RED}错误: start.sh脚本不存在，请先运行部署脚本${NC}"
+        return 1
+    fi
+    
+    # 确保start.sh有执行权限
+    chmod +x ./start.sh
+    
+    # 启动新应用
+    echo -e "${GREEN}启动应用...${NC}"
     nohup ./start.sh > app.log 2>&1 &
     
-    echo -e "${GREEN}应用已重启${NC}"
-    echo -e "查看日志: tail -f app.log"
+    # 等待应用启动
+    sleep 3
+    
+    # 检查应用是否成功启动
+    if pgrep -f "ai-code-mother" > /dev/null; then
+        echo -e "${GREEN}应用已成功重启${NC}"
+        echo -e "查看日志: tail -f /opt/1panel/apps/openresty/openresty/www/sites/ai-code-mother/app.log"
+    else
+        echo -e "${RED}应用启动失败，请查看日志文件${NC}"
+        echo -e "查看错误日志: tail -20 /opt/1panel/apps/openresty/openresty/www/sites/ai-code-mother/app.log"
+    fi
 }
 
 # 显示帮助信息
