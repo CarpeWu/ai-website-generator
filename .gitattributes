@@ -1,2 +1,6 @@
+# 明确指定 Maven Wrapper 脚本的行尾
 /mvnw text eol=lf
+mvnw.cmd text eol=crlf
+
+# 处理所有 Windows 批处理文件
 *.cmd text eol=crlf
