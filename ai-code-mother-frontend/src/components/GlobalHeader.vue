@@ -99,7 +99,7 @@ const originItems = [
   {
     key: 'github',
     icon: () => h(GithubOutlined),
-    label: h('a', { href: 'https://github.com/CarpeWu', target: '_blank' }, '项目地址'),
+    label: h('a', { href: 'https://github.com/CarpeWu/ai-website-generator', target: '_blank' }, '项目地址'),
     title: '项目地址',
   },
 ]
