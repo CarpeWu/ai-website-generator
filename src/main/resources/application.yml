@@ -55,9 +55,9 @@ knife4j:
 langchain4j:
   open-ai:
     chat-model:
-      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
-      api-key: ${AI_API_KEY:}
-      model-name: ${AI_CHAT_MODEL:qwen3-coder-480b-a35b-instruct}
+      base-url: ${CHAT_MODEL_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      api-key: ${CHAT_MODEL_API_KEY:}
+      model-name: ${CHAT_MODEL_NAME:qwen3-coder-480b-a35b-instruct}
       #      strict-json-schema: true
       #      response-format: json_object
       max-tokens: 8192
@@ -65,26 +65,26 @@ langchain4j:
       log-responses: true
       max-retries: 3
     streaming-chat-model:
-      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
-      api-key: ${AI_API_KEY:}
-      model-name: ${AI_CHAT_MODEL:qwen3-coder-480b-a35b-instruct}
+      base-url: ${STREAMING_CHAT_MODEL_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      api-key: ${STREAMING_CHAT_MODEL_API_KEY:}
+      model-name: ${STREAMING_CHAT_MODEL_NAME:qwen3-coder-480b-a35b-instruct}
       max-tokens: 8192
       log-requests: true
       log-responses: true
     # 推理 AI 模型配置（用于复杂的推理任务）
     reasoning-streaming-chat-model:
-      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
-      api-key: ${AI_API_KEY:}
-      model-name: ${AI_REASONING_MODEL:qwen3-coder-plus-2025-07-22}
+      base-url: ${REASONING_STREAMING_CHAT_MODEL_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      api-key: ${REASONING_STREAMING_CHAT_MODEL_API_KEY:}
+      model-name: ${REASONING_STREAMING_CHAT_MODEL_NAME:qwen3-coder-plus-2025-07-22}
       max-tokens: 32768
       temperature: 0.1
       log-requests: true
       log-responses: true
     # 智能路由 AI 模型配置（用于简单的分类任务）
     routing-chat-model:
-      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
-      api-key: ${AI_API_KEY:}
-      model-name: ${AI_ROUTING_MODEL:qwen3-coder-480b-a35b-instruct}
+      base-url: ${ROUTING_CHAT_MODEL_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      api-key: ${ROUTING_CHAT_MODEL_API_KEY:}
+      model-name: ${ROUTING_CHAT_MODEL_NAME:qwen3-coder-480b-a35b-instruct}
       log-requests: true
       log-responses: true
 # 添加 COS 对象存储配置（需要从腾讯云获取）
