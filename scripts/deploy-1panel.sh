@@ -78,7 +78,7 @@ echo "创建启动脚本..."
 cat > "$START_SCRIPT" << 'EOF'
 #!/bin/bash
 cd "/opt/1panel/apps/openresty/openresty/www/sites/ai-code-mother"
-java -jar ai-code-mother-0.0.1-SNAPSHOT.jar --spring.config.location=file:.env
+java -jar ai-code-mother-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 EOF
 
 chmod +x "$START_SCRIPT"

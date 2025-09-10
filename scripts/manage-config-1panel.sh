@@ -90,7 +90,7 @@ restart_app() {
         pkill -9 -f "ai-code-mother"
     fi
     
-    # 启动新应用
+    # 启动新应用（使用prod环境）
     cd "/opt/1panel/apps/openresty/openresty/www/sites/ai-code-mother"
     nohup ./start.sh > app.log 2>&1 &
     
