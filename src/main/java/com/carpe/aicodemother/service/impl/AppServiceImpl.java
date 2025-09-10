@@ -283,6 +283,15 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         Long userId = appQueryRequest.getUserId();
         String sortField = appQueryRequest.getSortField();
         String sortOrder = appQueryRequest.getSortOrder();
+        
+        // 默认按创建时间倒序排列
+        if (StrUtil.isBlank(sortField)) {
+            sortField = "createTime";
+        }
+        if (StrUtil.isBlank(sortOrder)) {
+            sortOrder = "descend";
+        }
+        
         return QueryWrapper.create()
                 .eq("id", id)
                 .like("appName", appName)

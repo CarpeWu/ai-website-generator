@@ -45,6 +45,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>  implements U
         String userRole = userQueryRequest.getUserRole();
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
+        
+        // 默认按创建时间倒序排列
+        if (StrUtil.isBlank(sortField)) {
+            sortField = "createTime";
+        }
+        if (StrUtil.isBlank(sortOrder)) {
+            sortOrder = "descend";
+        }
+        
         return QueryWrapper.create()
                 .eq("id", id)
                 .eq("userRole", userRole)

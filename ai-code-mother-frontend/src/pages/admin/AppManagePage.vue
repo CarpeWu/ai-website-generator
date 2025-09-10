@@ -24,6 +24,16 @@
           </a-select-option>
         </a-select>
       </a-form-item>
+      <a-form-item label="排序">
+        <a-select
+          v-model:value="sortOrder"
+          style="width: 120px"
+          @change="handleSortChange"
+        >
+          <a-select-option value="descend">创建时间 ↓</a-select-option>
+          <a-select-option value="ascend">创建时间 ↑</a-select-option>
+        </a-select>
+      </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">搜索</a-button>
       </a-form-item>
@@ -162,7 +172,12 @@ const total = ref(0)
 const searchParams = reactive<API.AppQueryRequest>({
   pageNum: 1,
   pageSize: 10,
+  sortField: 'createTime',
+  sortOrder: 'descend',
 })
+
+// 排序状态
+const sortOrder = ref('descend')
 
 // 获取数据
 const fetchData = async () => {
@@ -208,6 +223,13 @@ const doTableChange = (page: { current: number; pageSize: number }) => {
 // 搜索
 const doSearch = () => {
   // 重置页码
+  searchParams.pageNum = 1
+  fetchData()
+}
+
+// 排序变化处理
+const handleSortChange = (value: string) => {
+  searchParams.sortOrder = value
   searchParams.pageNum = 1
   fetchData()
 }
