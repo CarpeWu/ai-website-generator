@@ -24,7 +24,8 @@ scrape_configs:
   # Spring Boot 应用监控
   - job_name: 'ai-code-mother'
     metrics_path: '/api/actuator/prometheus'  # Spring Boot Actuator 端点
-    static_configs:
-      - targets: ['${PROMETHEUS_TARGET_HOST:host.docker.internal}:8123']  # 使用环境变量配置目标主机，默认host.docker.internal
     scrape_interval: 10s  # 每 10 秒抓取一次
     scrape_timeout: 10s   # 抓取超时时间
+    static_configs:
+      - targets: ['host.docker.internal:8123']
+
