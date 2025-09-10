@@ -1,4 +1,5 @@
 {
+  "_comment": "AI模型监控看板的整体JSON配置",
   "annotations": {
     "list": [
       {
