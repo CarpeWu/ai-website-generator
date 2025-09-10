@@ -35,7 +35,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'view-chat', appId: string | number | undefined): void
+  (e: 'view-chat', app: API.AppVO): void
   (e: 'view-work', app: API.AppVO): void
 }
 
@@ -46,7 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const handleViewChat = () => {
-  emit('view-chat', props.app.id)
+  emit('view-chat', props.app)
 }
 
 const handleViewWork = () => {

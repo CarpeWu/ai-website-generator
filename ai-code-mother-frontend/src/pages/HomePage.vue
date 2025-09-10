@@ -126,9 +126,13 @@ const loadFeaturedApps = async () => {
 }
 
 // 查看对话
-const viewChat = (appId: string | number | undefined) => {
-  if (appId) {
-    router.push(`/app/chat/${appId}?view=1`)
+const viewChat = (app: API.AppVO) => {
+  if (app.id) {
+    // 判断是否是自己的应用
+    const isOwner = app.userId === loginUserStore.loginUser.id
+    // 如果是自己的应用，正常进入；如果是别人的精选应用，进入查看模式
+    const viewMode = !isOwner && app.priority === 99 ? '?view=1' : ''
+    router.push(`/app/chat/${app.id}${viewMode}`)
   }
 }
 
@@ -264,7 +268,7 @@ onMounted(() => {
               v-for="app in myApps"
               :key="app.id"
               :app="app"
-              @view-chat="viewChat"
+              @view-chat="(app) => viewChat(app)"
               @view-work="viewWork"
             />
           </div>
@@ -294,7 +298,7 @@ onMounted(() => {
               :key="app.id"
               :app="app"
               :featured="true"
-              @view-chat="viewChat"
+              @view-chat="(app) => viewChat(app)"
               @view-work="viewWork"
             />
           </div>

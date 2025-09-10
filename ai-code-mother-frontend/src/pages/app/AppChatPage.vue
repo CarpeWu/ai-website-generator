@@ -16,12 +16,11 @@
           应用详情
         </a-button>
         <a-button
-          v-if="!viewOnly"
-          type="primary"
+          v-if="canDeploy"
+          type="primary" 
           ghost
           @click="downloadCode"
           :loading="downloading"
-          :disabled="!isOwner"
         >
           <template #icon>
             <DownloadOutlined />
@@ -29,11 +28,10 @@
           下载代码
         </a-button>
         <a-button 
-          v-if="!viewOnly" 
+          v-if="canDeploy" 
           type="primary" 
           @click="deployApp" 
           :loading="deploying"
-          :disabled="!isOwner"
         >
           <template #icon>
             <CloudUploadOutlined />
@@ -116,7 +114,7 @@
         </a-alert>
 
         <!-- 用户消息输入框 -->
-        <div v-if="!viewOnly" class="input-container">
+        <div v-if="canChat" class="input-container">
           <div class="input-wrapper">
             <a-tooltip v-if="!isOwner" title="无法在别人的作品下对话哦~" placement="top">
               <a-textarea
@@ -125,7 +123,7 @@
                 :rows="4"
                 :maxlength="1000"
                 @keydown.enter.prevent="sendMessage"
-                :disabled="isGenerating || !isOwner"
+                :disabled="isGenerating || !canChat"
               />
             </a-tooltip>
             <a-textarea
@@ -142,7 +140,7 @@
                 type="primary"
                 @click="sendMessage"
                 :loading="isGenerating"
-                :disabled="!isOwner"
+                :disabled="!canChat"
               >
                 <template #icon>
                   <SendOutlined />
@@ -158,7 +156,7 @@
           <h3>生成后的网页展示</h3>
           <div class="preview-actions">
             <a-button
-              v-if="isOwner && previewUrl && !viewOnly"
+              v-if="canEdit"
               type="link"
               :danger="isEditMode"
               @click="toggleEditMode"
@@ -314,6 +312,24 @@ const isOwner = computed(() => {
 
 const isAdmin = computed(() => {
   return loginUserStore.loginUser.userRole === 'admin'
+})
+
+// 新的权限逻辑：只有是自己的项目才能部署和编辑，精选项目预览时除外
+const canDeploy = computed(() => {
+  return isOwner.value && !isFeaturedApp.value
+})
+
+const canEdit = computed(() => {
+  return isOwner.value && !isFeaturedApp.value
+})
+
+const canChat = computed(() => {
+  return isOwner.value || !isFeaturedApp.value
+})
+
+// 判断是否为精选应用（通过优先级判断）
+const isFeaturedApp = computed(() => {
+  return appInfo.value?.priority === 99 && viewOnly.value
 })
 
 // 应用详情相关
@@ -780,6 +796,12 @@ const clearSelectedElement = () => {
 }
 
 const getInputPlaceholder = () => {
+  if (!isOwner.value) {
+    return '这是别人的作品，您可以查看但无法编辑哦~'
+  }
+  if (isFeaturedApp.value) {
+    return '这是精选项目，您可以查看但无法编辑哦~'
+  }
   if (selectedElementInfo.value) {
     return `正在编辑 ${selectedElementInfo.value.tagName.toLowerCase()} 元素，描述您想要的修改...`
   }
