@@ -1,4 +1,4 @@
-# CarpeDiemAI - 零代码网站生成平台
+# CarpeDiem - 零代码网站生成平台
 
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.x-green)
