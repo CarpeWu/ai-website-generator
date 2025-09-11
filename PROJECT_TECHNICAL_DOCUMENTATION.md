@@ -261,7 +261,6 @@ spring:
     password: ${DATASOURCE_PASSWORD}
 
 # Redis 配置
-spring:
   data:
     redis:
       host: ${REDIS_HOST}
